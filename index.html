@@ -1,22 +1,11 @@
-<!doctype html>
-
-<html lang="en">
-
+<!DOCTYPE html>
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <title>Generators in California</title>
     <meta name="description" content="description">
     <meta name="author" content="sxhan">
-    <style>
-     #map {
-       width: 100%;
-       height: 400px;
-       background-color: grey;
-     }
-    </style>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/css/materialize.min.css">
     <link rel="stylesheet" href="css/style.css">
     <!-- Compiled and minified CSS -->
 
@@ -26,176 +15,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
   <![endif]-->
 </head>
-
-<body>
-    <nav class="light-blue lighten-1" role="navigation">
-      <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo">Generators in California</a>
-        <!-- <ul class="right hide-on-med-and-down">
-          <li><a href="#">Navbar Link</a></li>
-        </ul> -->
-
-        <!-- <ul id="nav-mobile" class="side-nav">
-          <li><a href="#">Navbar Link</a></li>
-        </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a> -->
-      </div>
-    </nav>
-    <!-- <div class="section no-pad-bot" id="index-banner">
-      <div class="container">
-        <br><br>
-        <h1 class="header center orange-text">Starter Template</h1>
-        <div class="row center">
-          <h5 class="header col s12 light">A modern responsive front-end framework based on Material Design</h5>
-        </div>
-        <div class="row center">
-          <a href="http://materializecss.com/getting-started.html" id="download-button" class="btn-large waves-effect waves-light orange">Get Started</a>
-        </div>
-        <br><br>
-
-      </div>
-    </div> -->
+  <body>
     <div class="container">
-      <!-- <div class="section">
-        <div class="row">
-          <div class="col s12 m4">
-            <div class="icon-block">
-              <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-              <h5 class="center">Speeds up development</h5>
-
-              <p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
-            </div>
-          </div>
-
-          <div class="col s12 m4">
-            <div class="icon-block">
-              <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-              <h5 class="center">User Experience Focused</h5>
-
-              <p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
-            </div>
-          </div>
-
-          <div class="col s12 m4">
-            <div class="icon-block">
-              <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-              <h5 class="center">Easy to work with</h5>
-
-              <p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
-            </div>
-          </div>
-
+      <div class="options-box">
+        <h1>Find Your New NYC Home</h1>
+        <div>
+          <input id="show-listings" type="button" value="Show Listings">
+          <input id="hide-listings" type="button" value="Hide Listings">
         </div>
-
       </div>
-      <br><br> -->
-
-      <div class="section">
-          <div class="row">
-              <div id="map"></div>
-          </div>
-      </div>
+      <div id="map"></div>
     </div>
+    <!-- Compiled and minified JavaScript -->
+    <!-- <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script> -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js'></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
+   <script src="js/app.js"></script>
+   <script async defer
+   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB13Be18YOvyKwyDjXhJ9SKU5MdBzaKTj0&callback=initMap">
+   </script>
 
-    <footer class="page-footer orange">
-      <!-- <div class="container">
-        <div class="row">
-          <div class="col l6 s12">
-            <h5 class="white-text">Company Bio</h5>
-            <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
-
-
-          </div>
-          <div class="col l3 s12">
-            <h5 class="white-text">Settings</h5>
-            <ul>
-              <li><a class="white-text" href="#!">Link 1</a></li>
-              <li><a class="white-text" href="#!">Link 2</a></li>
-              <li><a class="white-text" href="#!">Link 3</a></li>
-              <li><a class="white-text" href="#!">Link 4</a></li>
-            </ul>
-          </div>
-          <div class="col l3 s12">
-            <h5 class="white-text">Connect</h5>
-            <ul>
-              <li><a class="white-text" href="#!">Link 1</a></li>
-              <li><a class="white-text" href="#!">Link 2</a></li>
-              <li><a class="white-text" href="#!">Link 3</a></li>
-              <li><a class="white-text" href="#!">Link 4</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-copyright">
-        <div class="container">
-        Made by <a class="orange-text text-lighten-3" href="http://materializecss.com">Materialize</a>
-        </div>
-      </div> -->
-    </footer>
-
-     <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
-     </script>
-     <script async defer
-     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB13Be18YOvyKwyDjXhJ9SKU5MdBzaKTj0&callback=initMap">
-     </script>
-     <!-- Compiled and minified JavaScript -->
-     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-    <script src="js/init.js"></script>
-
-         <script>
-
-           function initMap() {
-
-             var map = new google.maps.Map(document.getElementById('map'), {
-               zoom: 3,
-               center: {lat: -28.024, lng: 140.887}
-             });
-
-             // Create an array of alphabetical characters used to label the markers.
-             var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-             // Add some markers to the map.
-             // Note: The code uses the JavaScript Array.prototype.map() method to
-             // create an array of markers based on a given "locations" array.
-             // The map() method here has nothing to do with the Google Maps API.
-             var markers = locations.map(function(location, i) {
-               return new google.maps.Marker({
-                 position: location,
-                 label: labels[i % labels.length]
-               });
-             });
-
-             // Add a marker clusterer to manage the markers.
-             var markerCluster = new MarkerClusterer(map, markers,
-                 {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-           }
-           var locations = [
-             {lat: -31.563910, lng: 147.154312},
-             {lat: -33.718234, lng: 150.363181},
-             {lat: -33.727111, lng: 150.371124},
-             {lat: -33.848588, lng: 151.209834},
-             {lat: -33.851702, lng: 151.216968},
-             {lat: -34.671264, lng: 150.863657},
-             {lat: -35.304724, lng: 148.662905},
-             {lat: -36.817685, lng: 175.699196},
-             {lat: -36.828611, lng: 175.790222},
-             {lat: -37.750000, lng: 145.116667},
-             {lat: -37.759859, lng: 145.128708},
-             {lat: -37.765015, lng: 145.133858},
-             {lat: -37.770104, lng: 145.143299},
-             {lat: -37.773700, lng: 145.145187},
-             {lat: -37.774785, lng: 145.137978},
-             {lat: -37.819616, lng: 144.968119},
-             {lat: -38.330766, lng: 144.695692},
-             {lat: -39.927193, lng: 175.053218},
-             {lat: -41.330162, lng: 174.865694},
-             {lat: -42.734358, lng: 147.439506},
-             {lat: -42.734358, lng: 147.501315},
-             {lat: -42.735258, lng: 147.438000},
-             {lat: -43.999792, lng: 170.463352}
-           ]
-
-         </script>
-</body>
-
+  </body>
 </html>
