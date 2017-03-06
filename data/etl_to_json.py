@@ -6,13 +6,17 @@ def main():
         df = pd.read_csv(f, header=1)
 
     df = df[df.State == "CA"]
-    df = df[["Utility Name", "Plant Name", "Street Address", "City", "State", "Zip", "County", "Latitude", "Longitude", "NERC Region", "Balancing Authority Name", "Transmission or Distribution System Owner"]]
+    df = df[["Utility Name", "Plant Name", "Street Address", "City", "State",
+             "Zip", "County", "Latitude", "Longitude", "NERC Region",
+             "Balancing Authority Name",
+             "Transmission or Distribution System Owner"]]
     df = df.reset_index(drop=True)
 
-    print df.head()
+    # print df.head()
 
     with open("data.json", "wb") as f:
-        df.to_json(f, orient="index")
+        # df.to_json(f, orient="index")
+        df.to_json(f, orient="records")
 
 
 if __name__ == "__main__":
