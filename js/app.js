@@ -28,6 +28,9 @@
                 data.forEach(function(item) {
                     self.koItemList().push(new Item(item));
                 });
+                // ko bindings doesn't seem to work properly when updating the
+                // observable array inside the AJAX callback function.
+                // Explicitly command a refresh of all subscribers.
                 self.koItemList.valueHasMutated();
             })
             // this.koItemList = ko.observableArray([1, 2, 3]);
@@ -112,11 +115,8 @@
         var itemViewModel = new ItemViewModel();
         $(".button-drawer-toggle").sideNav();
         // Initialize collapsible (uncomment the line below if you use the dropdown variation)
-        //$('.collapsible').collapsible();
         console.log("Ready!");
-        // $('.button-collapse').sideNav();
 
-        var counter = 0;
         // var locations = ko.observable(Location);
         ko.applyBindings(itemViewModel);
     }); // end of document ready
