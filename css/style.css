@@ -44,7 +44,7 @@ h1 {
 }
 
 #map {
-    height: 100%;
+    height: calc(100% - 64px);
 }
 
 @media only screen and (max-width: 600px) {
