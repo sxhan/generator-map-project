@@ -15,6 +15,20 @@
             this.nercRegion = ko.observable(data['NERC Region']);
             this.balancingAuthorityName = ko.observable(data['Balancing Authority Name']);
             this.systemOwner = ko.observable(data['Transmission or Distribution System Owner']);
+            this.toJSON = function() {
+                return {utilityName: this.utilityName(),
+                        plantName: this.plantName(),
+                        streetAddress: this.streetAddress(),
+                        city: this.city(),
+                        state: this.state(),
+                        zip: this.zip(),
+                        county: this.county(),
+                        latitude: this.latitude(),
+                        longitude: this.longitude(),
+                        nercRegion: this.nercRegion(),
+                        balancingAuthorityName: this.balancingAuthorityName(),
+                        systemOwner: this.systemOwner()};
+            };
         };
 
         //
@@ -23,19 +37,29 @@
 
         var ItemViewModel = function() {
             var self = this;
+            allItems = [];
             this.koItemList = ko.observableArray([]);
             $.getJSON("/data/data.json", function(data) {
                 data.forEach(function(item) {
-                    self.koItemList().push(new Item(item));
+                    allItems.push(new Item(item));
                 });
                 // ko bindings doesn't seem to work properly when updating the
                 // observable array inside the AJAX callback function.
                 // Explicitly command a refresh of all subscribers.
-                self.koItemList.valueHasMutated();
+                self.koItemList(allItems);
+                // self.koItemList.valueHasMutated();
             })
             this.filterString = ko.observable();
             this.filter = function() {
-                console.log("submitting: " + self.filterString());
+                var newItemList = [];
+                var queryString = self.filterString();
+                allItems.forEach(function(item) {
+                    if (JSON.stringify(item.toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
+                        newItemList.push(item);
+                    }
+                })
+                self.koItemList(newItemList);
+                console.log("filter succeeded.")
             }
             // this.koItemList = ko.observableArray([1, 2, 3]);
         };
