@@ -76,10 +76,10 @@
             this.initMap = function(data, textStatus, jqXHR) {
                 // Init the actual map
                 var map = new google.maps.Map($('#map')[0], {
-                    zoom: 3,
+                    zoom: 12,
                     center: {
-                        lat: -28.024,
-                        lng: 140.887
+                        lat: 37.7749,
+                        lng: -122.4194
                     },
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
                     disableDefaultUI: true
@@ -122,6 +122,9 @@
                     });
                     markers.push(marker);
                 })
+                // Add a marker clusterer to manage the markers.
+                var markerCluster = new MarkerClusterer(map, markers,
+                    {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 
 
                 // // Add a marker clusterer to manage the markers.
