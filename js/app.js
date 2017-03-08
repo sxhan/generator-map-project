@@ -15,6 +15,7 @@
             this.nercRegion = ko.observable(data['NERC Region']);
             this.balancingAuthorityName = ko.observable(data['Balancing Authority Name']);
             this.systemOwner = ko.observable(data['Transmission or Distribution System Owner']);
+            this.visible = true;  // true by default
             this.toJSON = function() {
                 return {utilityName: this.utilityName(),
                         plantName: this.plantName(),
@@ -43,9 +44,14 @@
                 data.forEach(function(item) {
                     allItems.push(new Item(item));
                 });
-                // ko bindings doesn't seem to work properly when updating the
-                // observable array inside the AJAX callback function.
-                // Explicitly command a refresh of all subscribers.
+
+                // sort the list by plant name
+                allItems.sort(function(a, b) {
+                    if(a.plantName() < b.plantName()) return -1;
+                    if(a.plantName() > b.plantName()) return 1;
+                    return 0;
+                });
+                // update the observableArray
                 self.koItemList(allItems);
                 // self.koItemList.valueHasMutated();
             })
@@ -59,7 +65,7 @@
                     }
                 })
                 self.koItemList(newItemList);
-                console.log("filter succeeded.")
+                // console.log("filter succeeded.")
             }
             // this.koItemList = ko.observableArray([1, 2, 3]);
         };

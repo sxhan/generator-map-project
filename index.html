@@ -22,7 +22,7 @@
 
 <body>
     <nav class="blue-grey darken-1" role="navigation">
-        <span id="logo-container" href="#" class="brand-logo logo cursor-default">Map of Power Generators in California</span>
+        <span id="logo-container" class="brand-logo logo cursor-default">Map of Power Generators in California</span>
         <ul class="right hide-on-med-and-down">
             <!-- <li><a data-activates="slide-out" class="waves-effect waves-light btn button-drawer-toggle"><i class="material-icons">Filter</i></a></li> -->
             <li><a data-activates="slide-out" class="waves-effect waves-light btn button-drawer-toggle">Filter</a></li>
@@ -49,7 +49,8 @@
         <div class="row">
             <div class="col 12">
                 <ul data-bind="foreach: koItemList">
-                    <li data-bind="text: city"></li>
+                    <li><span data-bind="text: plantName"></span></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -72,7 +73,6 @@
             <li><a class="subheader">Subheader</a></li>
             <li><a class="waves-effect" href="#!">Third Link With Waves</a></li>
         </ul> -->
-    </div>
     <div id="map"></div>
     <!-- Compiled and minified JavaScript -->
     <!-- <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script> -->
