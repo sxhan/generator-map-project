@@ -33,6 +33,10 @@
                 // Explicitly command a refresh of all subscribers.
                 self.koItemList.valueHasMutated();
             })
+            this.filterString = ko.observable();
+            this.filter = function() {
+                console.log("submitting: " + self.filterString());
+            }
             // this.koItemList = ko.observableArray([1, 2, 3]);
         };
 

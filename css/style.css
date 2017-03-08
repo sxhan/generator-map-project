@@ -5,6 +5,10 @@ html, body {
     padding: 0;
 }
 
+.cursor-default {
+    cursor: default;
+}
+
 .control-toggle {
     color: #191918;
     font-family: "Roboto, Arial, sans-serif";
