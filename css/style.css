@@ -9,6 +9,10 @@ html, body {
     cursor: default;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 .control-toggle {
     color: #191918;
     font-family: "Roboto, Arial, sans-serif";
@@ -55,8 +59,7 @@ h1 {
     width: 240px;
     background-color: black;
     color: #fff;
-    text-align: center;
-    padding: 5px 0;
+    text-align: left;
     border-radius: 2px;
     font-size: 9px;
 

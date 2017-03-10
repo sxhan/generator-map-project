@@ -47,9 +47,9 @@
         </div>
         <div class="row">
             <ul data-bind="foreach: koItemList" class="collection">
-                <li class="tooltip" data-bind="event: {mouseover: $parent.hoverItem}">
-                    <a class="collection-item" data-bind="text: plantName, visible: visible"></a>
-                    <span class="tooltiptext"><p><span data-bind="text: utilityName"></span></p></span>
+                <li class="tooltip cursor-pointer" data-bind="event: {mouseover: $parent.hoverItem}">
+                    <a class="collection-item" data-bind="text: plantName, visible: visible, click: $parent.goToLocation"></a>
+                    <div class="tooltiptext" data-bind="html: info"></div>
                 </li>
             </ul>
         </div>

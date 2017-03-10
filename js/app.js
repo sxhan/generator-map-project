@@ -21,6 +21,7 @@
             this.balancingAuthorityName = data['Balancing Authority Name'];
             this.systemOwner = data['Transmission or Distribution System Owner'];
             this.visible = ko.observable(visible); // true by default
+            this.info = "<p>" + this.streetAddress + "\n" + this.city + ", " + this.state + " " + this.zip + "\n" + "owner: " + this.systemOwner + "\n" + "utility: " + this.utilityName + "</p>"
             this.toJSON = function() {
                 return {
                     utilityName: this.utilityName,
@@ -81,9 +82,14 @@
                          jqxhr.statusText);
             };
 
-            this.hoverItem = function() {
-                console.log("hello");
-            };
+            // this.hoverItem = function() {
+            //     console.log("hello");
+            // };
+
+            this.goToLocation = function() {
+                self.map.setCenter({lat: parseFloat(this.latitude),
+                                    lng: parseFloat(this.longitude)});
+            }
 
 
             //
