@@ -1,7 +1,12 @@
+'use strict';
+
 (function($) {
     $(function() {
-        'use strict'
+
+        //
         // Models
+        //
+
         var Item = function(data, visible, id) {
             this.utilityName = data['Utility Name'];
             this.plantName = data['Plant Name'];
@@ -33,6 +38,7 @@
                 };
             };
         };
+
 
         //
         // ViewModels
@@ -102,6 +108,9 @@
                 });
             }
 
+            // Initialization code has to be structured this way due to the
+            // async loading of google maps SDK, which must preceed everything
+
             function initMap(data, textStatus, jqXHR) {
                 // Init the actual map
                 self.map = new google.maps.Map($('#map')[0], {
@@ -116,6 +125,7 @@
                     },
                     disableDefaultUI: false
                 });
+                createFilterButton();
                 // Load generator data
                 loadData();
             };
@@ -147,29 +157,70 @@
                         visibleMarkers.push(self.markers[i]);
                     }
                 });
-                console.log(visibleMarkers);
                 self.markerCluster = new MarkerClusterer(self.map, visibleMarkers, {
                     imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
                 });
+            }
+
+            function createFilterButton() {
+                /**
+                 * The CenterControl adds a control to the map that recenters the map on
+                 * Chicago.
+                 * This constructor takes the control DIV as an argument.
+                 * @constructor
+                 */
+                function CenterControl(controlDiv, map) {
+                    // Set CSS for the control border.
+                    var controlUI = document.createElement('div');
+                    controlUI.style.backgroundColor = '#fff';
+                    controlUI.style.border = '2px solid #fff';
+                    controlUI.style.borderRadius = '3px';
+                    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+                    controlUI.style.cursor = 'pointer';
+                    controlUI.style.marginBottom = '22px';
+                    controlUI.style.textAlign = 'center';
+                    controlUI.title = 'Click to recenter the map';
+                    controlDiv.appendChild(controlUI);
+
+                    // Set CSS for the control interior.
+                    var controlText = document.createElement('div');
+                    controlText.style.color = 'rgb(25,25,25)';
+                    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+                    controlText.style.fontSize = '16px';
+                    controlText.style.lineHeight = '38px';
+                    controlText.style.paddingLeft = '5px';
+                    controlText.style.paddingRight = '5px';
+                    controlText.innerHTML = 'Filter';
+                    controlUI.appendChild(controlText);
+
+                    // // Setup the click event listeners: simply set the map to Chicago.
+                    // controlUI.addEventListener('click', function() {
+                    //     console.log("harro");
+                    // });
+                }
+
+                // Dynamically generate the Filter button onto the map
+                var centerControlDiv = $('<div>', {
+                    'data-activates': "slide-out",
+                    'class': "waves-effect waves-light btn button-drawer-toggle"
+                });
+
+                centerControlDiv.sideNav()
+                var centerControl = new CenterControl(centerControlDiv[0], map);
+
+                centerControlDiv.index = 1;
+                self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv[0]);
             }
         };
 
 
         // Initialize collapse button
-        // var mapViewModel = new MapViewModel();
-        // mapViewModel.init();
         $(".button-drawer-toggle").sideNav();
-        // Initialize collapsible (uncomment the line below if you use the dropdown variation)
-        console.log("Ready!");
+
         var viewModel = new ViewModel();
         viewModel.init();
 
-        $("#map").ajaxError(function( e, jqxhr, settings, exception ) {
-            console.log("asdfa")
-            if ( settings.dataType == "script" ) {
-                $( this ).text( "Triggered ajaxError handler." );
-            }
-        });
+        console.log("Ready!");
 
         // var locations = ko.observable(Location);
         ko.applyBindings(viewModel);
