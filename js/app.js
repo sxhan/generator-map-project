@@ -39,18 +39,47 @@
         //
 
         var ViewModel = function() {
+
             var self = this;
-            var markers = [];
+            this.markers = [];
             this.markerCluster = undefined;
             this.map = undefined;
             this.koItemList = ko.observableArray([]);
+            this.filterString = ko.observable();
+
             this.init = function() {
                 // Load google maps SDK. The callback function will create the
                 // map, and then load the data into map
                 $.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyB13Be18YOvyKwyDjXhJ9SKU5MdBzaKTj0",
-                            self.initMap).fail(self.errorCallback)
+                            initMap).fail(self.errorCallback)
             };
-            this.loadData = function() {
+
+            this.filter = function() {
+                var queryString = self.filterString();
+                self.koItemList().forEach(function(item, i) {
+                    if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
+                        item().visible(true);
+                        self.markers[i].setMap(self.map);
+                    } else {
+                        item().visible(false);
+                        self.markers[i].setMap(null);
+                    }
+                });
+                redrawClusters();
+                // console.log("filter succeeded.")
+            };
+
+            this.errorCallback = function(jqxhr, settings, exception) {
+                var map = $('#map')
+                map.text("error occured: " + jqxhr.status + " " +
+                         jqxhr.statusText);
+            };
+
+
+            //
+            // Private methods
+            //
+            function loadData() {
                 $.getJSON("/data/data.json", function(data) {
                     // Create a temp array to hold our items for initial
                     // loading and sorting
@@ -68,42 +97,12 @@
 
                     // Create the observableArray
                     self.koItemList(tempList);
-
-                    self.koItemList().forEach(function(item) {
-                        var marker = new google.maps.Marker({
-                            position: {
-                                lat: parseFloat(item().latitude),
-                                lng: parseFloat(item().longitude)
-                            },
-                            label: item().plantName,
-                            map: self.map,
-                        });
-                        // markers will be pushed in the same order as they are
-                        // found on in the observable array
-                        markers.push(marker);
-                    })
+                    createMarkers();
                     redrawClusters();
                 });
             }
 
-            function redrawClusters() {
-                // Redraws the marker clusters on update of marker visibility
-                if (self.markerCluster) {
-                    self.markerCluster.clearMarkers();
-                }
-                var visibleMarkers = [];
-                self.koItemList().forEach(function(site, i) {
-                    if (site().visible()){
-                        visibleMarkers.push(markers[i]);
-                    }
-                });
-                console.log(visibleMarkers);
-                self.markerCluster = new MarkerClusterer(self.map, visibleMarkers, {
-                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
-                });
-            }
-            // Callback function used by the .init() function
-            this.initMap = function(data, textStatus, jqXHR) {
+            function initMap(data, textStatus, jqXHR) {
                 // Init the actual map
                 self.map = new google.maps.Map($('#map')[0], {
                     zoom: 12,
@@ -118,31 +117,41 @@
                     disableDefaultUI: false
                 });
                 // Load generator data
-                self.loadData();
+                loadData();
             };
-            this.filterString = ko.observable();
-            this.filter = function() {
-                var queryString = self.filterString();
-                self.koItemList().forEach(function(item, i) {
-                    if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
-                        item().visible(true);
-                        markers[i].setMap(self.map);
-                    } else {
-                        item().visible(false);
-                        markers[i].setMap(null);
+
+            function createMarkers() {
+                self.koItemList().forEach(function(item) {
+                    var marker = new google.maps.Marker({
+                        position: {
+                            lat: parseFloat(item().latitude),
+                            lng: parseFloat(item().longitude)
+                        },
+                        label: item().plantName,
+                        map: self.map,
+                    });
+                    // self.markers will be pushed in the same order as they are
+                    // found on in the observable array
+                    self.markers.push(marker);
+                });
+            }
+
+            function redrawClusters() {
+                // Redraws the marker clusters on update of marker visibility
+                if (self.markerCluster) {
+                    self.markerCluster.clearMarkers();
+                }
+                var visibleMarkers = [];
+                self.koItemList().forEach(function(site, i) {
+                    if (site().visible()){
+                        visibleMarkers.push(self.markers[i]);
                     }
                 });
-                redrawClusters();
-                // console.log("filter succeeded.")
-            };
-
-            this.errorCallback = function(jqxhr, settings, exception) {
-                var map = $('#map')
-                map.text("error occured: " + jqxhr.status + " " +
-                         jqxhr.statusText);
-            };
-            // this.koItemList = ko.observableArray([1, 2, 3]);
-
+                console.log(visibleMarkers);
+                self.markerCluster = new MarkerClusterer(self.map, visibleMarkers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                });
+            }
         };
 
 
