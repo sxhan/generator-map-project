@@ -82,7 +82,7 @@
             };
 
             this.hoverItem = function() {
-                console.log("Hello");
+                console.log("hello");
             };
 
 
