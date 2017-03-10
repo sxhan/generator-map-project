@@ -81,6 +81,10 @@
                          jqxhr.statusText);
             };
 
+            this.hoverItem = function() {
+                console.log("Hello");
+            };
+
 
             //
             // Private methods
