@@ -49,7 +49,7 @@
 
             var self = this;
             this.markers = [];
-            this.markerCluster = undefined;
+            this.markerClusterer = undefined;
             this.map = undefined;
             this.koItemList = ko.observableArray([]);
             this.filterString = ko.observable();
@@ -91,6 +91,22 @@
                                     lng: parseFloat(this.longitude)});
             }
 
+            this.toggleBounce = function(koIndex) {
+
+                var wantedItem = self.koItemList()[koIndex()];
+
+                self.map.setCenter({lat: parseFloat(wantedItem().latitude),
+                                    lng: parseFloat(wantedItem().longitude)});
+                self.map.setZoom(14);
+
+                var wantedMarker = self.markers[koIndex()];
+                if (wantedMarker.getAnimation() !== null) {
+                    wantedMarker.setAnimation(null);
+                } else {
+                    wantedMarker.setAnimation(google.maps.Animation.BOUNCE);
+                    setTimeout(function(){ wantedMarker.setAnimation(null); }, 750);
+                }
+            };
 
             //
             // Private methods
@@ -156,19 +172,25 @@
                 });
             }
 
+            function clearClusters() {
+                if (self.markerClusterer) {
+                    self.markerClusterer.clearMarkers();
+                }
+            }
+
             function redrawClusters() {
                 // Redraws the marker clusters on update of marker visibility
-                if (self.markerCluster) {
-                    self.markerCluster.clearMarkers();
-                }
+                clearClusters()
+
                 var visibleMarkers = [];
                 self.koItemList().forEach(function(site, i) {
                     if (site().visible()){
                         visibleMarkers.push(self.markers[i]);
                     }
                 });
-                self.markerCluster = new MarkerClusterer(self.map, visibleMarkers, {
-                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+                self.markerClusterer = new MarkerClusterer(self.map, visibleMarkers, {
+                    imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+                    maxZoom: 13
                 });
             }
 
@@ -222,6 +244,8 @@
                 self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv[0]);
             }
         };
+
+
 
 
         // Initialize collapse button

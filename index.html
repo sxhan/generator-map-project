@@ -48,7 +48,7 @@
         <div class="row">
             <ul data-bind="foreach: koItemList" class="collection">
                 <li class="tooltip cursor-pointer" data-bind="event: {mouseover: $parent.hoverItem}">
-                    <a class="collection-item" data-bind="text: plantName, visible: visible, click: $parent.goToLocation"></a>
+                    <a class="collection-item" data-bind="text: plantName, visible: visible, click: $parent.toggleBounce.bind($data, $index)"></a>
                     <div class="tooltiptext" data-bind="html: info"></div>
                 </li>
             </ul>
@@ -56,7 +56,6 @@
     </div>
     <div id="map"></div>
     <!-- Compiled and minified JavaScript -->
-    <!-- <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script> -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js'></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
