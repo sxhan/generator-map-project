@@ -21,7 +21,6 @@
             this.balancingAuthorityName = data['Balancing Authority Name'];
             this.systemOwner = data['Transmission or Distribution System Owner'];
             this.visible = ko.observable(visible); // true by default
-            this.info = "<p>" + this.streetAddress + "\n" + this.city + ", " + this.state + " " + this.zip + "\n" + "owner: " + this.systemOwner + "\n" + "utility: " + this.utilityName + "</p>"
             this.toJSON = function() {
                 return {
                     utilityName: this.utilityName,
@@ -100,13 +99,20 @@
                 self.map.setZoom(14);
 
                 var wantedMarker = self.markers[koIndex()];
-                if (wantedMarker.getAnimation() !== null) {
-                    wantedMarker.setAnimation(null);
-                } else {
-                    wantedMarker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(function(){ wantedMarker.setAnimation(null); }, 750);
-                }
+                animateMarker(wantedMarker);
             };
+
+            function animateMarker(marker) {
+                if (marker.getAnimation() !== null) {
+                    marker.setAnimation(null);
+                } else {
+                    marker.setAnimation(google.maps.Animation.BOUNCE);
+                    setTimeout(function(){ marker.setAnimation(null); }, 750);
+                }
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(function(){ marker.setAnimation(null); }, 750);
+
+            }
 
             //
             // Private methods
@@ -157,19 +163,67 @@
             };
 
             function createMarkers() {
-                self.koItemList().forEach(function(item) {
+
+                var largeInfowindow = new google.maps.InfoWindow();
+
+                self.koItemList().forEach(function(item, i) {
                     var marker = new google.maps.Marker({
                         position: {
                             lat: parseFloat(item().latitude),
                             lng: parseFloat(item().longitude)
                         },
-                        label: item().plantName,
+                        // label: item().plantName,
                         map: self.map,
+                        title: item().plantName,
                     });
                     // self.markers will be pushed in the same order as they are
                     // found on in the observable array
                     self.markers.push(marker);
+                    marker.addListener('click', function() {
+                        animateMarker(marker);
+                        // delay the popup window to let animation occur
+                        setTimeout(function() {
+                            populateInfoWindow(marker, largeInfowindow, i);
+                        }, 750);
+
+
+                    });
                 });
+            }
+
+            function populateInfoWindow(marker, infowindow, idx) {
+                // only open if its not currently open
+                if (infowindow.maker != marker) {
+                    infowindow.marker = marker;
+                    var contentString = '<div><b>' + marker.title + '</b></div>' +
+                        '<div>' + self.koItemList()[idx]().streetAddress + '</div>' +
+                        '<div>' + self.koItemList()[idx]().city + ', ' + self.koItemList()[idx]().state + ' ' + self.koItemList()[idx]().zip + '</div>' +
+                        '<div>Utility: ' + self.koItemList()[idx]().utilityName + '</div>';
+                        // '<div id="siteNotice">'+
+                        // '</div>'+
+                        // '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
+                        // '<div id="bodyContent">'+
+                        // '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
+                        // 'sandstone rock formation in the southern part of the '+
+                        // 'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
+                        // 'south west of the nearest large town, Alice Springs; 450&#160;km '+
+                        // '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
+                        // 'features of the Uluru - Kata Tjuta National Park. Uluru is '+
+                        // 'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
+                        // 'Aboriginal people of the area. It has many springs, waterholes, '+
+                        // 'rock caves and ancient paintings. Uluru is listed as a World '+
+                        // 'Heritage Site.</p>'+
+                        // '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
+                        // 'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
+                        // '(last visited June 22, 2009).</p>'+
+                        // '</div>'+
+                        // '</div>';
+                    infowindow.setContent(contentString);
+                    infowindow.open(self.map, marker);
+                    infowindow.addListener('closeclick', function() {
+                        infowindow.setMarker(null);
+                    })
+                }
             }
 
             function clearClusters() {
