@@ -52,6 +52,7 @@
             this.map = undefined;
             this.koItemList = ko.observableArray([]);
             this.filterString = ko.observable();
+            this.userMarker = undefined;
 
             this.init = function() {
                 // Load google maps SDK. The callback function will create the
@@ -144,6 +145,8 @@
             // async loading of google maps SDK, which must preceed everything
 
             function initMap(data, textStatus, jqXHR) {
+                // Remove preloader
+                $('#preloader').remove()
                 // Init the actual map
                 self.map = new google.maps.Map($('#map')[0], {
                     zoom: 12,
@@ -158,6 +161,7 @@
                     disableDefaultUI: false
                 });
                 createFilterButton();
+                createGeolocationButton();
                 // Load generator data
                 loadData();
             };
@@ -185,8 +189,6 @@
                         setTimeout(function() {
                             populateInfoWindow(marker, largeInfowindow, i);
                         }, 750);
-
-
                     });
                 });
             }
@@ -248,6 +250,96 @@
                 });
             }
 
+            function createGeolocationButton() {
+
+                // Dynamically generate the Filter button onto the map
+                var locationControlDiv = $('<div>', {
+                    'class': "waves-effect waves-light btn button-drawer-toggle"
+                });
+
+                var locationControl = new LocationControl(locationControlDiv[0], self.map);
+
+                locationControl.index = 1;
+                self.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(locationControlDiv[0]);
+
+
+            }
+
+            function LocationControl(controlDiv, map) {
+                // Set CSS for the control border.
+                var controlUI = document.createElement('div');
+                controlUI.style.backgroundColor = '#fff';
+                controlUI.style.border = '2px solid #fff';
+                controlUI.style.borderRadius = '3px';
+                controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
+                controlUI.style.cursor = 'pointer';
+                controlUI.style.marginBottom = '22px';
+                controlUI.style.textAlign = 'center';
+                controlUI.title = 'Click to recenter the map';
+                controlDiv.appendChild(controlUI);
+
+                // Set CSS for the control interior.
+                var controlText = document.createElement('div');
+                controlText.style.color = 'rgb(25,25,25)';
+                controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
+                controlText.style.fontSize = '16px';
+                controlText.style.lineHeight = '38px';
+                controlText.style.paddingLeft = '5px';
+                controlText.style.paddingRight = '5px';
+                controlText.innerHTML = 'Locate';
+                controlUI.appendChild(controlText);
+
+                // Setup the click event listeners: simply set the map to Chicago.
+                controlUI.addEventListener('click', geoLocate);
+            };
+
+            function handleLocationError(browserHasGeolocation) {
+                Materialize.toast(browserHasGeolocation ?
+                    'Error: The Geolocation service failed.' :
+                    'Error: Your browser doesn\'t support geolocation.',
+                    2000) // 4000 is the duration of the toast
+            }
+
+            function geoLocate() {
+                var map = self.map;
+                // Try HTML5 geolocation.
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(pos);
+                        // delay marker drop to let map movement occur
+                        setTimeout(function() {
+                            dropUserMarker(pos);
+                        }, 750);
+
+                    }, function() {
+                        handleLocationError(true);
+                    }, {timeout: 4000});
+                } else {
+                  // Browser doesn't support Geolocation
+                  handleLocationError(false);
+                }
+            }
+
+            function dropUserMarker(pos) {
+                var marker = self.userMarker;
+                // Move user marker if exists. Create new if not
+                if (marker) {
+                    console.log(marker);
+                } else {
+                    self.userMarker = new google.maps.Marker({
+                      map: self.map,
+                      draggable: false,
+                      animation: google.maps.Animation.DROP,
+                      position: pos,
+                    });
+                }
+            }
+
+
             function createFilterButton() {
                 /**
                  * The CenterControl adds a control to the map that recenters the map on
@@ -291,15 +383,13 @@
                     'class': "waves-effect waves-light btn button-drawer-toggle"
                 });
 
-                centerControlDiv.sideNav()
-                var centerControl = new CenterControl(centerControlDiv[0], map);
+                centerControlDiv.sideNav();
+                var centerControl = new CenterControl(centerControlDiv[0], self.map);
 
                 centerControlDiv.index = 1;
                 self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv[0]);
             }
         };
-
-
 
 
         // Initialize collapse button
