@@ -5,7 +5,13 @@
 
     'use strict';
 
-    // Custom Google Maps Style
+    /*
+     *
+     * Pale Dawn - Custom google maps style from by Adam Krogh
+     * Artist link: https://twitter.com/adamkrogh
+     * Found on Snazzy Maps: https://snazzymaps.com/style/1/pale-dawn
+     *
+     */
 
     var mapStyle = [
         {
@@ -107,15 +113,21 @@
      */
 
     ko.bindingHandlers.dataTooltip = {
+        /**
+        * @description This is a custom binding to enable data binding
+        * between ko and materalize's tooltip element attributes
+        * @param {number} element - DOM element object
+        * @param {number} valueAccessor - the data bound to this element by
+        * ko
+        * @returns undefined
+        */
         init: function (element, valueAccessor) {
-            // This will be called when the binding is first applied to an element
-            // Set up any initial state, event handlers, etc. here
             var value = valueAccessor();
             element.setAttribute("data-tooltip", value);
         }
     };
 
-    /*
+    /**
      *
      * Main app
      *
@@ -123,10 +135,19 @@
 
     $(function () {
 
-        //
-        // Models
-        //
+        /**
+         *
+         * Models
+         *
+         */
 
+        /**
+        * @constructor model data objects holding the map location
+        * information
+        * @param {object} data - json formatted raw data
+        * @param {bool} visible - bound by ko to determine whether location is
+        * visible on list and map
+        */
         var Item = function (data, visible) {
             this.utilityName = data['Utility Name'];
             this.plantName = data['Plant Name'];
@@ -172,9 +193,13 @@
         };
 
 
-        //
-        // ViewModels
-        //
+        /**
+        *
+        *
+        * ViewModel
+        *
+        *
+        */
 
         var ViewModel = function () {
 
@@ -188,6 +213,11 @@
             this.infoWindowText = ko.observable();
             this.infoWindow = undefined;
 
+
+            /**
+            * @description entrypoint for initializing all dynamically loaded
+            * content
+            */
             this.init = function () {
                 // Load google maps SDK. The callback function will create the
                 // map, and then load the data into map
@@ -195,6 +225,10 @@
                             initMap).fail(self.errorCallback);
             };
 
+            /**
+            * @description filters locations on map. Hides non matching
+            * locations on map and list
+            */
             this.filter = function () {
                 var queryString = self.filterString();
                 self.koItemList().forEach(function (item, i) {
@@ -210,12 +244,20 @@
                 // console.log("filter succeeded.")
             };
 
+            /**
+            * @description callback function invoked for ajax request errors
+            */
             this.errorCallback = function (jqxhr, settings, exception) {
                 Materialize.toast("error occured: " + jqxhr.status + " " +
                     jqxhr.statusText);
                 clearProgressBar();
             };
 
+            /**
+            * @description center map on location and animate marker
+            * @param {ko.observable} koIndex - ko observable of index of
+            * location
+            */
             this.viewLocation = function(koIndex) {
 
                 var wantedItem = self.koItemList()[koIndex()];
@@ -232,6 +274,10 @@
 
             };
 
+            /**
+            * @description Makes a marker bounce
+            * @param {google.maps.Marker} marker - marker to animate
+            */
             function animateMarker(marker) {
                 if (marker.getAnimation() !== null) {
                     marker.setAnimation(null);
@@ -248,6 +294,33 @@
             //
             // Private methods
             //
+
+            function initMap(data, textStatus, jqXHR) {
+                // Initialization code has to be structured this way due to the
+                // async loading of google maps SDK, which must preceed everything
+
+                // Init the actual map
+                self.map = new google.maps.Map($('#map')[0], {
+                    zoom: 12,
+                    center: {
+                        lat: 37.7749,
+                        lng: -122.4194
+                    },
+                    zoomControl: true,
+                    streetViewControl: true,
+                    // mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    styles: mapStyle,
+                    mapTypeControlOptions: {
+                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+                    },
+                    disableDefaultUI: true
+                });
+                createFilterButton();
+                createGeolocationButton();
+                // Load generator data
+                loadData();
+            }
+
             function loadData() {
                 $.getJSON("/data/data.json", function (data) {
                     // Create a temp array to hold our items for initial
@@ -276,33 +349,6 @@
                     // stop progress bar
                     clearProgressBar();
                 }).fail(self.errorCallback);
-            }
-
-            // Initialization code has to be structured this way due to the
-            // async loading of google maps SDK, which must preceed everything
-
-            function initMap(data, textStatus, jqXHR) {
-
-                // Init the actual map
-                self.map = new google.maps.Map($('#map')[0], {
-                    zoom: 12,
-                    center: {
-                        lat: 37.7749,
-                        lng: -122.4194
-                    },
-                    zoomControl: true,
-                    streetViewControl: true,
-                    // mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    styles: mapStyle,
-                    mapTypeControlOptions: {
-                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-                    },
-                    disableDefaultUI: true
-                });
-                createFilterButton();
-                createGeolocationButton();
-                // Load generator data
-                loadData();
             }
 
             function createMarkers() {
@@ -563,15 +609,17 @@
         };
 
 
-        // Initialize collapse button
-        $(".button-drawer-toggle").sideNav();
+        /*
+         *
+         * Entrypoint
+         *
+         */
 
         var viewModel = new ViewModel();
         viewModel.init();
 
         console.log("Ready!");
 
-        // var locations = ko.observable(Location);
         ko.applyBindings(viewModel);
     }); // end of document ready
 })(jQuery); // end of jQuery name space
