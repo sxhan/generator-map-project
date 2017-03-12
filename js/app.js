@@ -77,9 +77,9 @@
             };
 
             this.errorCallback = function(jqxhr, settings, exception) {
-                var map = $('#map')
-                map.text("error occured: " + jqxhr.status + " " +
-                         jqxhr.statusText);
+                Materialize.toast("error occured: " + jqxhr.status + " " +
+                    jqxhr.statusText);
+                clearProgressBar();
             };
 
             // this.hoverItem = function() {
@@ -141,7 +141,7 @@
 
                     // stop progress bar
                     clearProgressBar();
-                });
+                }).fail(self.errorCallback);
             }
 
             // Initialization code has to be structured this way due to the
@@ -295,14 +295,6 @@
                 controlUI.addEventListener('click', geoLocate);
             };
 
-            function handleLocationError(browserHasGeolocation) {
-                clearProgressBar();
-                Materialize.toast(browserHasGeolocation ?
-                    'Error: The Geolocation service failed.' :
-                    'Error: Your browser doesn\'t support geolocation.',
-                    2000) // 4000 is the duration of the toast
-            }
-
             function geoLocate() {
                 var map = self.map;
                 // Try HTML5 geolocation.
@@ -404,6 +396,14 @@
 
             function clearProgressBar() {
                 $('#progress').children().first().removeClass('indeterminate');
+            }
+
+            function handleLocationError(browserHasGeolocation) {
+                Materialize.toast(browserHasGeolocation ?
+                    'Error: The Geolocation service failed.' :
+                    'Error: Your browser doesn\'t support geolocation.',
+                    2000) // 4000 is the duration of the toast
+                clearProgressBar();
             }
         };
 
