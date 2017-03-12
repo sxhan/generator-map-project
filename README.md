@@ -1,5 +1,7 @@
 # Udacity Full Stack Web Developer Nanodegree Project 6: Map of Power Generators in California
 A pure client side application for exploring registered power generators around you.
+Makes use of the [Google Maps API](https://developers.google.com/maps/) and the [Wikipedia API](https://www.mediawiki.org/wiki/API:Main_page).
+Generator data extracted from [EIA](https://www.eia.gov/electricity/data/eia860/).
 
 ## Demo Site
 See it in action [here](http://map.thoughtforyourthoughts.com/)
