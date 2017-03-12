@@ -517,8 +517,8 @@
 
                         clearProgressBar();
 
-                    }, function() {
-                        handleLocationError(true);
+                    }, function(err) {
+                        handleLocationError(true, err);
                     }, {timeout: 4000});
                 } else {
                   // Browser doesn't support Geolocation
@@ -599,11 +599,12 @@
                 $('#progress').children().first().removeClass('indeterminate');
             }
 
-            function handleLocationError(browserHasGeolocation) {
-                Materialize.toast(browserHasGeolocation ?
-                    'Error: The Geolocation service failed.' :
-                    'Error: Your browser doesn\'t support geolocation.',
-                    2000) // 4000 is the duration of the toast
+            function handleLocationError(browserHasGeolocation, err) {
+                var msg = browserHasGeolocation ?
+                    'Error: The Geolocation service failed. ' + err.message:
+                    'Error: Your browser doesn\'t support geolocation.';
+
+                Materialize.toast(msg, 2000) // 4000 is the duration of the toast
                 clearProgressBar();
             }
         };
