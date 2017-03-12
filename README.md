@@ -4,7 +4,7 @@ Makes use of the [Google Maps API](https://developers.google.com/maps/) and the 
 Generator data extracted from [EIA](https://www.eia.gov/electricity/data/eia860/).
 
 ## Demo Site
-See it in action [here](http://map.thoughtforyourthoughts.com/)
+See it in action [here](https://map.thoughtforyourthoughts.com/)
 
 ## Usage
 1. Move around the map as you normally would on google maps, and explore the different generator locations
