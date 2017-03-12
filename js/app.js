@@ -403,7 +403,7 @@
                     // Update page with wiki links
                     var content = infoWindow.getContent();
                     content += '</br><b><div>Wiki Links</div></b>';
-                    for (var i = 0; i < data[1].length; i++) {
+                    for (var i = 0; i < Math.min(data[1].length, 3); i++) {
                         content += '<div><a target="_blank" href="' +
                             data[3][i] + '">' +
                             data[1][i] + '</a></div>';
