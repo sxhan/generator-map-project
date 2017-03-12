@@ -75,8 +75,14 @@ h1 {
     visibility: visible;
 }
 
+.footer {
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+}
+
 #map {
-    height: calc(100% - 64px);
+    height: calc(100% - 64px - 4px);  /*-64 for header, -4 for loading bar*/
 }
 
 @media only screen and (max-width: 600px) {

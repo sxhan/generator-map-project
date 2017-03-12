@@ -138,6 +138,9 @@
                     self.koItemList(tempList);
                     createMarkers();
                     redrawClusters();
+
+                    // stop progress bar
+                    clearProgressBar();
                 });
             }
 
@@ -145,8 +148,7 @@
             // async loading of google maps SDK, which must preceed everything
 
             function initMap(data, textStatus, jqXHR) {
-                // Remove preloader
-                $('#preloader').remove()
+
                 // Init the actual map
                 self.map = new google.maps.Map($('#map')[0], {
                     zoom: 12,
@@ -294,6 +296,7 @@
             };
 
             function handleLocationError(browserHasGeolocation) {
+                clearProgressBar();
                 Materialize.toast(browserHasGeolocation ?
                     'Error: The Geolocation service failed.' :
                     'Error: Your browser doesn\'t support geolocation.',
@@ -304,6 +307,8 @@
                 var map = self.map;
                 // Try HTML5 geolocation.
                 if (navigator.geolocation) {
+
+                    startProgressBar();
                     navigator.geolocation.getCurrentPosition(function(position) {
                         var pos = {
                             lat: position.coords.latitude,
@@ -314,6 +319,8 @@
                         setTimeout(function() {
                             dropUserMarker(pos);
                         }, 750);
+
+                        clearProgressBar();
 
                     }, function() {
                         handleLocationError(true);
@@ -338,7 +345,6 @@
                     });
                 }
             }
-
 
             function createFilterButton() {
                 /**
@@ -388,6 +394,16 @@
 
                 centerControlDiv.index = 1;
                 self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv[0]);
+            }
+
+            function startProgressBar() {
+                if (! $('#progress').children().first().hasClass('indeterminate')){
+                    $('#progress').children().first().addClass('indeterminate');
+                }
+            }
+
+            function clearProgressBar() {
+                $('#progress').children().first().removeClass('indeterminate');
             }
         };
 
