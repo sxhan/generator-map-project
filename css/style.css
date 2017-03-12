@@ -57,6 +57,22 @@ h1 {
     margin: 0;
 }
 
+.rotate {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.map-control-icon {
+    width: 28px;
+    height: 28px;
+    justify-content: center;
+    margin-right: 10px;
+    margin-top: 10px;
+    border-radius: 2px;
+}
 
 @media only screen and (max-width: 600px) {
     #logo-container {

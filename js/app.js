@@ -459,43 +459,23 @@
 
                 // Dynamically generate the Filter button onto the map
                 var locationControlDiv = $('<div>', {
-                    'class': "waves-effect waves-light btn button-drawer-toggle"
+                    'class': 'waves-effect waves-light map-control-icon blue-text text-accent-1 white z-depth-1'
                 });
 
                 var locationControl = new LocationControl(locationControlDiv[0], self.map);
 
                 locationControl.index = 1;
-                self.map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(locationControlDiv[0]);
-
+                self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationControlDiv[0]);
 
             }
 
             function LocationControl(controlDiv, map) {
                 // Set CSS for the control border.
-                var controlUI = document.createElement('div');
-                controlUI.style.backgroundColor = '#fff';
-                controlUI.style.border = '2px solid #fff';
-                controlUI.style.borderRadius = '3px';
-                controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
-                controlUI.style.cursor = 'pointer';
-                controlUI.style.marginBottom = '22px';
-                controlUI.style.textAlign = 'center';
-                controlUI.title = 'Click to recenter the map';
-                controlDiv.appendChild(controlUI);
-
-                // Set CSS for the control interior.
-                var controlText = document.createElement('div');
-                controlText.style.color = 'rgb(25,25,25)';
-                controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-                controlText.style.fontSize = '16px';
-                controlText.style.lineHeight = '38px';
-                controlText.style.paddingLeft = '5px';
-                controlText.style.paddingRight = '5px';
-                controlText.innerHTML = 'Locate';
-                controlUI.appendChild(controlText);
+                var controlUI = $('<i class="small material-icons rotate">my_location</i>');
+                controlDiv.appendChild(controlUI[0]);
 
                 // Setup the click event listeners: simply set the map to Chicago.
-                controlUI.addEventListener('click', geoLocate);
+                controlUI[0].addEventListener('click', geoLocate);
             }
 
             function geoLocate() {
@@ -548,27 +528,9 @@
                  */
                 function CenterControl(controlDiv, map) {
                     // Set CSS for the control border.
-                    var controlUI = document.createElement('div');
-                    controlUI.style.backgroundColor = '#fff';
-                    controlUI.style.border = '2px solid #fff';
-                    controlUI.style.borderRadius = '3px';
-                    controlUI.style.boxShadow = '0 2px 6px rgba(0,0,0,.3)';
-                    controlUI.style.cursor = 'pointer';
-                    controlUI.style.marginBottom = '22px';
-                    controlUI.style.textAlign = 'center';
-                    controlUI.title = 'Click to recenter the map';
-                    controlDiv.appendChild(controlUI);
-
-                    // Set CSS for the control interior.
-                    var controlText = document.createElement('div');
-                    controlText.style.color = 'rgb(25,25,25)';
-                    controlText.style.fontFamily = 'Roboto,Arial,sans-serif';
-                    controlText.style.fontSize = '16px';
-                    controlText.style.lineHeight = '38px';
-                    controlText.style.paddingLeft = '5px';
-                    controlText.style.paddingRight = '5px';
-                    controlText.innerHTML = 'Filter';
-                    controlUI.appendChild(controlText);
+                    var controlUI = $('<i class="small material-icons rotate">call_merge</i>',
+                                      {title: "filter"});
+                    controlDiv.appendChild(controlUI[0]);
 
                     // // Setup the click event listeners: simply set the map to Chicago.
                     // controlUI.addEventListener('click', function() {
@@ -579,14 +541,16 @@
                 // Dynamically generate the Filter button onto the map
                 var centerControlDiv = $('<div>', {
                     'data-activates': "slide-out",
-                    'class': "waves-effect waves-light btn button-drawer-toggle"
+                    'class': 'waves-effect waves-light map-control-icon blue-text text-accent-1 white z-depth-1'
                 });
 
+                // jQuery sidenav initialization
                 centerControlDiv.sideNav();
+
                 var centerControl = new CenterControl(centerControlDiv[0], self.map);
 
                 centerControlDiv.index = 1;
-                self.map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerControlDiv[0]);
+                self.map.controls[google.maps.ControlPosition.RIGHT_TOP].push(centerControlDiv[0]);
             }
 
             function startProgressBar() {
