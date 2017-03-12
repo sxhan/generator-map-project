@@ -1,3 +1,6 @@
+/*jslint sub:true*/
+/*jshint unused:false*/
+
 (function ($) {
 
     'use strict';
@@ -182,17 +185,19 @@
             this.koItemList = ko.observableArray([]);
             this.filterString = ko.observable();
             this.userMarker = undefined;
+            this.infoWindowText = ko.observable();
+            this.infoWindow = undefined;
 
-            this.init = function() {
+            this.init = function () {
                 // Load google maps SDK. The callback function will create the
                 // map, and then load the data into map
                 $.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyB13Be18YOvyKwyDjXhJ9SKU5MdBzaKTj0",
-                            initMap).fail(self.errorCallback)
+                            initMap).fail(self.errorCallback);
             };
 
-            this.filter = function() {
+            this.filter = function () {
                 var queryString = self.filterString();
-                self.koItemList().forEach(function(item, i) {
+                self.koItemList().forEach(function (item, i) {
                     if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
                         item().visible(true);
                         self.markers[i].setMap(self.map);
@@ -205,7 +210,7 @@
                 // console.log("filter succeeded.")
             };
 
-            this.errorCallback = function(jqxhr, settings, exception) {
+            this.errorCallback = function (jqxhr, settings, exception) {
                 Materialize.toast("error occured: " + jqxhr.status + " " +
                     jqxhr.statusText);
                 clearProgressBar();
@@ -221,7 +226,7 @@
                 var marker = self.markers[koIndex()];
 
                 // Give map time to move before setting off animation
-                setTimeout(function() {
+                setTimeout(function () {
                     animateMarker(marker);
                 }, 1000);
 
@@ -236,7 +241,7 @@
                 //     setTimeout(function(){ marker.setAnimation(null); }, 750);
                 // }
                 marker.setAnimation(google.maps.Animation.BOUNCE);
-                setTimeout(function(){ marker.setAnimation(null); }, 750);
+                setTimeout(function () { marker.setAnimation(null); }, 750);
 
             }
 
@@ -244,18 +249,18 @@
             // Private methods
             //
             function loadData() {
-                $.getJSON("/data/data.json", function(data) {
+                $.getJSON("/data/data.json", function (data) {
                     // Create a temp array to hold our items for initial
                     // loading and sorting
                     var tempList = [];
-                    data.forEach(function(item) {
+                    data.forEach(function (item) {
                         tempList.push(ko.observable(new Item(item, true)));
                     });
 
                     // sort the list by plant name
-                    tempList.sort(function(a, b) {
-                        if (a().plantName < b().plantName) return -1;
-                        if (a().plantName > b().plantName) return 1;
+                    tempList.sort(function (a, b) {
+                        if (a().plantName < b().plantName) { return -1; }
+                        if (a().plantName > b().plantName) { return 1; }
                         return 0;
                     });
 
@@ -290,7 +295,7 @@
                     // mapTypeId: google.maps.MapTypeId.ROADMAP,
                     styles: mapStyle,
                     mapTypeControlOptions: {
-                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+                        style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
                     },
                     disableDefaultUI: true
                 });
@@ -298,13 +303,13 @@
                 createGeolocationButton();
                 // Load generator data
                 loadData();
-            };
+            }
 
             function createMarkers() {
 
-                var largeInfowindow = new google.maps.InfoWindow();
+                self.infoWindow = new google.maps.InfoWindow();
 
-                self.koItemList().forEach(function(item, i) {
+                self.koItemList().forEach(function (item, i) {
                     var marker = new google.maps.Marker({
                         position: {
                             lat: parseFloat(item().latitude),
@@ -312,30 +317,68 @@
                         },
                         // label: item().plantName,
                         map: self.map,
-                        title: item().plantName,
+                        title: item().plantName
                     });
                     // self.markers will be pushed in the same order as they are
                     // found on in the observable array
                     self.markers.push(marker);
-                    marker.addListener('click', function() {
+                    marker.addListener('click', function () {
                         animateMarker(marker);
                         // delay the popup window to let animation occur
-                        setTimeout(function() {
-                            populateInfoWindow(marker, largeInfowindow, i);
+                        setTimeout(function () {
+                            populateInfoWindow(marker, self.infoWindow, i);
                         }, 750);
                     });
                 });
             }
 
-            function populateInfoWindow(marker, infowindow, idx) {
+            function searchWikipedia(query, infoWindow) {
+                var url = "https://en.wikipedia.org/w/api.php";
+                url += '?' + $.param({
+                    action: "opensearch",
+                    format: "json",
+                    search: query,
+                    rvprop: "content",
+                    callback: "jsonCallback"
+                });
+                var wikiRequestTimeout = setTimeout(function () {
+                    Materialize.toast("failed to get wikipedia resources");
+                }, 8000);
+
+                $.ajax({
+                    url: url,
+                    dataType: "jsonp"
+                }).done(function (data, textStatus, jqXHR) {
+                    clearTimeout(wikiRequestTimeout);
+                    // If no wiki content found, exit
+                    if (data[1].length === 0) {
+                        return
+                    }
+                    // Update page with wiki links
+                    var content = infoWindow.getContent();
+                    content += '</br><b><div>Wiki Links</div></b>';
+                    for (var i = 0; i < data[1].length; i++) {
+                        content += '<div><a target="_blank" href="' +
+                            data[3][i] + '">' +
+                            data[1][i] + '</a></div>';
+                    }
+                    infoWindow.setContent(content);
+                });
+            }
+
+            function populateInfoWindow(marker, infoWindow, idx) {
                 // only open if its not currently open
-                if (infowindow.maker != marker) {
-                    infowindow.marker = marker;
-                    infowindow.setContent(self.koItemList()[idx]().info);
-                    infowindow.open(self.map, marker);
-                    infowindow.addListener('closeclick', function() {
-                        infowindow.setMap(null);
-                    })
+                if (infoWindow.marker !== marker) {
+                    infoWindow.marker = marker;
+                    self.infoWindowText(self.koItemList()[idx]().info);
+                    infoWindow.setContent(self.infoWindowText());
+                    // Async function to get wikipedia results
+                    searchWikipedia(self.koItemList()[idx]().systemOwner,
+                                    infoWindow);
+                    infoWindow.open(self.map, marker);
+                    infoWindow.addListener('closeclick', function () {
+                        infoWindow.setMap(null);
+                    });
                 }
             }
 
@@ -352,11 +395,11 @@
 
             function redrawClusters() {
                 // Redraws the marker clusters on update of marker visibility
-                clearClusters()
+                clearClusters();
 
                 var visibleMarkers = [];
-                self.koItemList().forEach(function(site, i) {
-                    if (site().visible()){
+                self.koItemList().forEach(function (site, i) {
+                    if (site().visible()) {
                         visibleMarkers.push(self.markers[i]);
                     }
                 });
@@ -407,7 +450,7 @@
 
                 // Setup the click event listeners: simply set the map to Chicago.
                 controlUI.addEventListener('click', geoLocate);
-            };
+            }
 
             function geoLocate() {
                 var map = self.map;
