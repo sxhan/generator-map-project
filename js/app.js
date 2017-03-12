@@ -97,6 +97,26 @@ var mapStyle = [
 
 /*
  *
+ * Custom KO bindings for tooltips
+ *
+ */
+
+ko.bindingHandlers.dataTooltip = {
+    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var value = valueAccessor();
+        element.setAttribute("data-tooltip", value);
+        // This will be called when the binding is first applied to an element
+        // Set up any initial state, event handlers, etc. here
+    },
+    // update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+    //     // This will be called once when the binding is first applied to an element,
+    //     // and again whenever any observables/computeds that are accessed change
+    //     // Update the DOM element based on the supplied values here.
+    // }
+};
+
+/*
+ *
  * Main app
  *
  */
@@ -122,6 +142,18 @@ var mapStyle = [
             this.balancingAuthorityName = data['Balancing Authority Name'];
             this.systemOwner = data['Transmission or Distribution System Owner'];
             this.visible = ko.observable(visible); // true by default
+            this.info = '<div class="tooltiptext">' +
+                        '<b><div>' + this.plantName + '</div></b>' +
+                        '</br>' +
+                        '<div>' + this.streetAddress + '</div>' +
+                        '<div>' + this.city + ', ' + this.state + ' ' + this.zip + '</div>' +
+                        '<div>County: ' + this.county + '</div>' +
+                        '<div>Utility: ' + this.utilityName + '</div>' +
+                        '<div>System Owner: ' + this.systemOwner + '</div>' +
+                        '<div>Lat Lng: ' + this.latitude + ', ' + this.longitude + '</div>' +
+                        '<div>NERC Region: ' + this.nercRegion + '</div>' +
+                        // '<div>Balancing Authority Name: ' + this.balancingAuthorityName + '</div>' +
+                        '</div>';
             this.toJSON = function() {
                 return {
                     utilityName: this.utilityName,
@@ -183,34 +215,30 @@ var mapStyle = [
                 clearProgressBar();
             };
 
-            // this.hoverItem = function() {
-            //     console.log("hello");
-            // };
-
-            this.goToLocation = function() {
-                self.map.setCenter({lat: parseFloat(this.latitude),
-                                    lng: parseFloat(this.longitude)});
-            }
-
-            this.toggleBounce = function(koIndex) {
+            this.viewLocation = function(koIndex) {
 
                 var wantedItem = self.koItemList()[koIndex()];
 
-                self.map.setCenter({lat: parseFloat(wantedItem().latitude),
-                                    lng: parseFloat(wantedItem().longitude)});
+                goToLocation(wantedItem().latitude, wantedItem().longitude);
                 self.map.setZoom(14);
 
-                var wantedMarker = self.markers[koIndex()];
-                animateMarker(wantedMarker);
+                var marker = self.markers[koIndex()];
+
+                // Give map time to move before setting off animation
+                setTimeout(function() {
+                    animateMarker(marker);
+                }, 1000);
+
             };
 
             function animateMarker(marker) {
                 if (marker.getAnimation() !== null) {
                     marker.setAnimation(null);
-                } else {
-                    marker.setAnimation(google.maps.Animation.BOUNCE);
-                    setTimeout(function(){ marker.setAnimation(null); }, 750);
                 }
+                // } else {
+                //     marker.setAnimation(google.maps.Animation.BOUNCE);
+                //     setTimeout(function(){ marker.setAnimation(null); }, 750);
+                // }
                 marker.setAnimation(google.maps.Animation.BOUNCE);
                 setTimeout(function(){ marker.setAnimation(null); }, 750);
 
@@ -223,6 +251,7 @@ var mapStyle = [
                 $.getJSON("/data/data.json", function(data) {
                     // Create a temp array to hold our items for initial
                     // loading and sorting
+                    data = data.slice(0, 10);
                     var tempList = [];
                     data.forEach(function(item) {
                         tempList.push(ko.observable(new Item(item, true)));
@@ -235,8 +264,12 @@ var mapStyle = [
                         return 0;
                     });
 
-                    // Create the observableArray
+                    // Create the observableArray which then populates the DOM
                     self.koItemList(tempList);
+                    // Now that the DOM is populated, initialize tooltips
+                    $('.tooltipped').tooltip({delay: 50,
+                                              html: true});
+
                     createMarkers();
                     redrawClusters();
 
@@ -303,33 +336,10 @@ var mapStyle = [
                 // only open if its not currently open
                 if (infowindow.maker != marker) {
                     infowindow.marker = marker;
-                    var contentString = '<div><b>' + marker.title + '</b></div>' +
-                        '<div>' + self.koItemList()[idx]().streetAddress + '</div>' +
-                        '<div>' + self.koItemList()[idx]().city + ', ' + self.koItemList()[idx]().state + ' ' + self.koItemList()[idx]().zip + '</div>' +
-                        '<div>Utility: ' + self.koItemList()[idx]().utilityName + '</div>';
-                        // '<div id="siteNotice">'+
-                        // '</div>'+
-                        // '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
-                        // '<div id="bodyContent">'+
-                        // '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-                        // 'sandstone rock formation in the southern part of the '+
-                        // 'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-                        // 'south west of the nearest large town, Alice Springs; 450&#160;km '+
-                        // '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-                        // 'features of the Uluru - Kata Tjuta National Park. Uluru is '+
-                        // 'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
-                        // 'Aboriginal people of the area. It has many springs, waterholes, '+
-                        // 'rock caves and ancient paintings. Uluru is listed as a World '+
-                        // 'Heritage Site.</p>'+
-                        // '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-                        // 'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-                        // '(last visited June 22, 2009).</p>'+
-                        // '</div>'+
-                        // '</div>';
-                    infowindow.setContent(contentString);
+                    infowindow.setContent(self.koItemList()[idx]().info);
                     infowindow.open(self.map, marker);
                     infowindow.addListener('closeclick', function() {
-                        infowindow.setMarker(null);
+                        infowindow.setMap(null);
                     })
                 }
             }
@@ -338,6 +348,11 @@ var mapStyle = [
                 if (self.markerClusterer) {
                     self.markerClusterer.clearMarkers();
                 }
+            }
+
+            function goToLocation(lat, lng) {
+                self.map.setCenter({lat: parseFloat(lat),
+                                    lng: parseFloat(lng)});
             }
 
             function redrawClusters() {

@@ -30,14 +30,14 @@
     <div id="slide-out" class="side-nav">
         <div class="row">
             <form>
-                <div class="input-field col s6">
+                <div class="input-field col s8">
                     <input id="filter" type="text" data-bind="value: filterString, submit: filter">
                     <label for="filter">Filter</label>
                     <!-- <a class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a> -->
                 </div>
                 <!-- use 2 layers of input fields to force vertical alignment -->
 
-                <div class="input-field col s6">
+                <div class="input-field col s4">
                     <button id="filter-submit" data-bind="click: filter" type="submit" class="input-field btn waves-effect waves-light blue"><i class="material-icons active">play_arrow</i></button>
                 </div>
             </form>
@@ -47,9 +47,15 @@
         </div>
         <div class="row">
             <ul data-bind="foreach: koItemList" class="collection">
-                <li class="tooltip cursor-pointer" data-bind="event: {mouseover: $parent.hoverItem}">
-                    <a class="collection-item" data-bind="text: plantName, visible: visible, click: $parent.toggleBounce.bind($data, $index)"></a>
-                    <!-- <div class="tooltiptext" data-bind="html: info"></div> -->
+
+                <li class="tooltip cursor-pointer">
+                    <a class="collection-item tooltipped"
+                       data-position="right"
+                       data-delay="50"
+                       data-bind="text: plantName, visible: visible,
+                                  event: {click: $parent.viewLocation.bind($data, $index)},
+                                  dataTooltip: info">
+                   </a>
                 </li>
             </ul>
         </div>
