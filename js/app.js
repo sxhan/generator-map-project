@@ -471,7 +471,8 @@
 
             function LocationControl(controlDiv, map) {
                 // Set CSS for the control border.
-                var controlUI = $('<i class="small material-icons rotate">my_location</i>');
+                // var controlUI = $('<i class="small material-icons rotate">my_location</i>');
+                var controlUI = $('<i class="fa fa-location-arrow fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>')
                 controlDiv.appendChild(controlUI[0]);
 
                 // Setup the click event listeners: simply set the map to Chicago.
@@ -528,7 +529,7 @@
                  */
                 function CenterControl(controlDiv, map) {
                     // Set CSS for the control border.
-                    var controlUI = $('<i class="small material-icons rotate">call_merge</i>',
+                    var controlUI = $('<i class="fa fa-filter fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>',
                                       {title: "filter"});
                     controlDiv.appendChild(controlUI[0]);
 
