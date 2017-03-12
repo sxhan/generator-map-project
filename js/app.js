@@ -542,7 +542,7 @@
                 // Dynamically generate the Filter button onto the map
                 var centerControlDiv = $('<div>', {
                     'data-activates': "slide-out",
-                    'class': 'waves-effect waves-light map-control-icon blue-text text-accent-1 white z-depth-1'
+                    'class': 'waves-effect waves-light map-control-icon grey-text text-darken-1 white z-depth-1'
                 });
 
                 // jQuery sidenav initialization
