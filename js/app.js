@@ -1,134 +1,130 @@
-'use strict';
+(function ($) {
 
-// Custom Google Maps Style
+    'use strict';
 
-var mapStyle = [
-    {
-        "featureType": "administrative",
-        "elementType": "all",
-        "stylers": [
-            {
-                "visibility": "on"
-            },
-            {
-                "lightness": 33
-            }
-        ]
-    },
-    {
-        "featureType": "landscape",
-        "elementType": "all",
-        "stylers": [
-            {
-                "color": "#f2e5d4"
-            }
-        ]
-    },
-    {
-        "featureType": "poi.park",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "color": "#c5dac6"
-            }
-        ]
-    },
-    {
-        "featureType": "poi.park",
-        "elementType": "labels",
-        "stylers": [
-            {
-                "visibility": "on"
-            },
-            {
-                "lightness": 20
-            }
-        ]
-    },
-    {
-        "featureType": "road",
-        "elementType": "all",
-        "stylers": [
-            {
-                "lightness": 20
-            }
-        ]
-    },
-    {
-        "featureType": "road.highway",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "color": "#c5c6c6"
-            }
-        ]
-    },
-    {
-        "featureType": "road.arterial",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "color": "#e4d7c6"
-            }
-        ]
-    },
-    {
-        "featureType": "road.local",
-        "elementType": "geometry",
-        "stylers": [
-            {
-                "color": "#fbfaf7"
-            }
-        ]
-    },
-    {
-        "featureType": "water",
-        "elementType": "all",
-        "stylers": [
-            {
-                "visibility": "on"
-            },
-            {
-                "color": "#acbcc9"
-            }
-        ]
-    }
-];
+    // Custom Google Maps Style
 
-/*
- *
- * Custom KO bindings for tooltips
- *
- */
+    var mapStyle = [
+        {
+            "featureType": "administrative",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "visibility": "on"
+                },
+                {
+                    "lightness": 33
+                }
+            ]
+        },
+        {
+            "featureType": "landscape",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "color": "#f2e5d4"
+                }
+            ]
+        },
+        {
+            "featureType": "poi.park",
+            "elementType": "geometry",
+            "stylers": [
+                {
+                    "color": "#c5dac6"
+                }
+            ]
+        },
+        {
+            "featureType": "poi.park",
+            "elementType": "labels",
+            "stylers": [
+                {
+                    "visibility": "on"
+                },
+                {
+                    "lightness": 20
+                }
+            ]
+        },
+        {
+            "featureType": "road",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "lightness": 20
+                }
+            ]
+        },
+        {
+            "featureType": "road.highway",
+            "elementType": "geometry",
+            "stylers": [
+                {
+                    "color": "#c5c6c6"
+                }
+            ]
+        },
+        {
+            "featureType": "road.arterial",
+            "elementType": "geometry",
+            "stylers": [
+                {
+                    "color": "#e4d7c6"
+                }
+            ]
+        },
+        {
+            "featureType": "road.local",
+            "elementType": "geometry",
+            "stylers": [
+                {
+                    "color": "#fbfaf7"
+                }
+            ]
+        },
+        {
+            "featureType": "water",
+            "elementType": "all",
+            "stylers": [
+                {
+                    "visibility": "on"
+                },
+                {
+                    "color": "#acbcc9"
+                }
+            ]
+        }
+    ];
 
-ko.bindingHandlers.dataTooltip = {
-    init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-        var value = valueAccessor();
-        element.setAttribute("data-tooltip", value);
-        // This will be called when the binding is first applied to an element
-        // Set up any initial state, event handlers, etc. here
-    },
-    // update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-    //     // This will be called once when the binding is first applied to an element,
-    //     // and again whenever any observables/computeds that are accessed change
-    //     // Update the DOM element based on the supplied values here.
-    // }
-};
+    /*
+     *
+     * Custom KO bindings for tooltips
+     *
+     */
 
-/*
- *
- * Main app
- *
- */
+    ko.bindingHandlers.dataTooltip = {
+        init: function (element, valueAccessor) {
+            // This will be called when the binding is first applied to an element
+            // Set up any initial state, event handlers, etc. here
+            var value = valueAccessor();
+            element.setAttribute("data-tooltip", value);
+        }
+    };
 
-(function($) {
-    $(function() {
+    /*
+     *
+     * Main app
+     *
+     */
+
+    $(function () {
 
         //
         // Models
         //
 
-        var Item = function(data, visible, id) {
+        var Item = function (data, visible) {
             this.utilityName = data['Utility Name'];
             this.plantName = data['Plant Name'];
             this.streetAddress = data['Street Address'];
@@ -154,7 +150,7 @@ ko.bindingHandlers.dataTooltip = {
                         '<div>NERC Region: ' + this.nercRegion + '</div>' +
                         // '<div>Balancing Authority Name: ' + this.balancingAuthorityName + '</div>' +
                         '</div>';
-            this.toJSON = function() {
+            this.toJSON = function () {
                 return {
                     utilityName: this.utilityName,
                     plantName: this.plantName,
@@ -177,7 +173,7 @@ ko.bindingHandlers.dataTooltip = {
         // ViewModels
         //
 
-        var ViewModel = function() {
+        var ViewModel = function () {
 
             var self = this;
             this.markers = [];
@@ -251,7 +247,6 @@ ko.bindingHandlers.dataTooltip = {
                 $.getJSON("/data/data.json", function(data) {
                     // Create a temp array to hold our items for initial
                     // loading and sorting
-                    data = data.slice(0, 10);
                     var tempList = [];
                     data.forEach(function(item) {
                         tempList.push(ko.observable(new Item(item, true)));
@@ -445,16 +440,14 @@ ko.bindingHandlers.dataTooltip = {
             function dropUserMarker(pos) {
                 var marker = self.userMarker;
                 // Move user marker if exists. Create new if not
-                if (marker) {
-                    console.log(marker);
-                } else {
-                    self.userMarker = new google.maps.Marker({
-                      map: self.map,
-                      draggable: false,
-                      animation: google.maps.Animation.DROP,
-                      position: pos,
-                    });
-                }
+                if (marker) { marker.setMap(null) }
+
+                self.userMarker = new google.maps.Marker({
+                  map: self.map,
+                  draggable: false,
+                  animation: google.maps.Animation.DROP,
+                  position: pos,
+                });
             }
 
             function createFilterButton() {
