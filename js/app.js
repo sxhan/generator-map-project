@@ -512,11 +512,19 @@
                 // Move user marker if exists. Create new if not
                 if (marker) { marker.setMap(null) }
 
+                var icon = {
+                    url: 'img/my-location.png', // url
+                    scaledSize: new google.maps.Size(25, 25), // scaled size
+                    origin: new google.maps.Point(0,0), // origin
+                    anchor: new google.maps.Point(0, 0) // ancho
+                };
+
                 self.userMarker = new google.maps.Marker({
                   map: self.map,
                   draggable: false,
                   animation: google.maps.Animation.DROP,
                   position: pos,
+                  icon: icon
                 });
             }
 
