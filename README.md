@@ -17,6 +17,11 @@ See it in action [here](https://map.thoughtforyourthoughts.com/)
 ## Running Locally
 1. Clone the repository at `git clone git@github.com:sxhan/generator-map-project.git`
 2. Change directory into the project directory: `cd generator-map-project`
-3. To access all the features, you must use a local server to serve the website. This can be done very easily in [python](https://docs.python.org/2/library/simplehttpserver.html) or [nodejs](https://www.npmjs.com/package/http-server).
+3. To access all the features, you must use a local server to serve the website. This can be done very easily in [ python](https://docs.python.org/2/library/simplehttpserver.html) or [ nodejs](https://www.npmjs.com/package/http-server):
+ - If you have python 2 installed, run: `python -m SimpleHTTPServer 8000`. Note that this will serve on `0.0.0.0` instead of `localhost`
+ - If you have python 3 installed, run: `python -m http.server 8000 --bind 127.0.0.1`
+ - If you have npm:
+  - Install http-server globally if you have not already done so: `npm install http-server -g`. You may need `sudo` to perform this action.
+  - Start the server with: `http-server . -p 8000 -a 127.0.0.1`
 4. Depending on how you managed step 3, you'll see different messages that indicate success or failure. Documentation specific to python or the nodejs package for more details.
 5. Access the site in your browser by entering the following in the address bar: "http://localhost:8000/". The 8000 value may differ, depending on how the server was created.
