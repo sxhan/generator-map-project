@@ -1,5 +1,4 @@
 /*jslint sub:true*/
-/*jshint unused:false*/
 
 (function ($) {
 
@@ -272,6 +271,10 @@
                     animateMarker(marker);
                 }, 1000);
 
+                setTimeout(function () {
+                    populateInfoWindow(marker, self.infoWindow, koIndex());
+                }, 750);
+
             };
 
             /**
@@ -398,7 +401,7 @@
                     clearTimeout(wikiRequestTimeout);
                     // If no wiki content found, exit
                     if (data[1].length === 0) {
-                        return
+                        return ;
                     }
                     // Update page with wiki links
                     var content = infoWindow.getContent();
@@ -472,7 +475,7 @@
             function LocationControl(controlDiv, map) {
                 // Set CSS for the control border.
                 // var controlUI = $('<i class="small material-icons rotate">my_location</i>');
-                var controlUI = $('<i class="fa fa-location-arrow fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>')
+                var controlUI = $('<i class="fa fa-location-arrow fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>');
                 controlDiv.appendChild(controlUI[0]);
 
                 // Setup the click event listeners: simply set the map to Chicago.
@@ -510,7 +513,7 @@
             function dropUserMarker(pos) {
                 var marker = self.userMarker;
                 // Move user marker if exists. Create new if not
-                if (marker) { marker.setMap(null) }
+                if (marker) { marker.setMap(null); }
 
                 var icon = {
                     url: 'img/my-location.png', // url
@@ -577,7 +580,7 @@
                     'Error: The Geolocation service failed. ' + err.message:
                     'Error: Your browser doesn\'t support geolocation.';
 
-                Materialize.toast(msg, 2000) // 4000 is the duration of the toast
+                Materialize.toast(msg, 2000); // 4000 is the duration of the toast
                 clearProgressBar();
             }
         };
