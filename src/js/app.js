@@ -9,7 +9,6 @@ function init(data, textStatus, jqXHR) {
 
     var viewModel = new ViewModel();
 
-
     // Init the viewmodel
     viewModel.init();
 

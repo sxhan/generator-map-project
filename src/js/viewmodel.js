@@ -35,7 +35,6 @@ var ViewModel = function () {
     * @description entrypoint for initializing all dynamically loaded
     * content
     */
-
     this.init = function () {
         // Init map
         initMap();
@@ -89,6 +88,9 @@ var ViewModel = function () {
     // Private methods
     //
 
+    /**
+    * @description creates google map object and adds custom controls
+    */
     function initMap() {
         self.map = new google.maps.Map($('#map')[0], {
             zoom: 12,
@@ -111,6 +113,9 @@ var ViewModel = function () {
         createGeolocationButton(self.map);
     }
 
+    /**
+    * @description Load location data and creates observables
+    */
     function loadData() {
         $.getJSON("src/data/data.json", function (data) {
             // Create a temp array to hold our items for initial
@@ -138,33 +143,25 @@ var ViewModel = function () {
         }).fail(errorCallback);
     }
 
-
     /**
-    * @description Makes a marker bounce
-    * @param {google.maps.Marker} marker - marker to animate
+    * @description Starts the progress bar
     */
-    function animateMarker(marker) {
-        if (marker.getAnimation() !== null) {
-            marker.setAnimation(null);
-        }
-        // } else {
-        //     marker.setAnimation(google.maps.Animation.BOUNCE);
-        //     setTimeout(function(){ marker.setAnimation(null); }, 750);
-        // }
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(function () { marker.setAnimation(null); }, 750);
-    }
-
     function startProgressBar () {
         self.progress(true);
     }
 
+    /**
+    * @description Clears the progress bar
+    */
     function clearProgressBar () {
         self.progress(false);
     }
 
+    /**
+    * @description Populates the view with google maps markers and adds
+    * references to markers on their respective item object instances
+    */
     function createMarkers() {
-
         self.koItemList().forEach(function (item, i) {
             var marker = new google.maps.Marker({
                 position: {
@@ -184,6 +181,10 @@ var ViewModel = function () {
         });
     }
 
+    /**
+    * @description The action to take when a marker is clicked.
+    * @param {Item} item - item object instance
+    */
     function clickMarker(item) {
         startProgressBar();
         animateMarker(item.marker);
@@ -193,6 +194,27 @@ var ViewModel = function () {
         }, 750);
     }
 
+    /**
+    * @description Makes a marker bounce
+    * @param {google.maps.Marker} marker - marker to animate
+    */
+    function animateMarker(marker) {
+        if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+        }
+        // } else {
+        //     marker.setAnimation(google.maps.Animation.BOUNCE);
+        //     setTimeout(function(){ marker.setAnimation(null); }, 750);
+        // }
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function () { marker.setAnimation(null); }, 750);
+    }
+
+    /**
+    * @description Searches wikipedia for relevant links
+    * @param {Item} query - query string
+    * @param {google.maps.InfoWindow} infoWindow - infowindow instance
+    */
     function searchWikipedia(query, infoWindow) {
         var url = "https://en.wikipedia.org/w/api.php";
         url += '?' + $.param({
@@ -223,6 +245,12 @@ var ViewModel = function () {
         }).fail(errorCallback);
     }
 
+    /**
+    * @description Displays information about a location as an infowindow
+    * @param {Item} item - item object containing marker reference and text
+    * to be displayed
+    * @param {google.maps.InfoWindow} infoWindow - infowindow instance
+    */
     function populateInfoWindow(item, infoWindow) {
         // only open if its not currently open
         if (infoWindow.marker !== item.marker) {
@@ -239,17 +267,28 @@ var ViewModel = function () {
         clearProgressBar();
     }
 
+    /**
+    * @description clear all clusters in preparation for redraw
+    */
     function clearClusters() {
         if (self.markerClusterer) {
             self.markerClusterer.clearMarkers();
         }
     }
 
+    /**
+    * @description Move map center to location
+    * @param {float} lat - latitude
+    * @param {float} lng - longitude
+    */
     function goToLocation(lat, lng) {
         self.map.setCenter({lat: parseFloat(lat),
                             lng: parseFloat(lng)});
     }
 
+    /**
+    * @description Redraws clusters on map after a filtering operation
+    */
     function redrawClusters() {
         // Redraws the marker clusters on update of marker visibility
         clearClusters();
@@ -264,6 +303,15 @@ var ViewModel = function () {
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
             maxZoom: 13
         });
+    }
+
+    /**
+    * @description callback function invoked for ajax request errors
+    */
+    function errorCallback(jqxhr, settings, exception) {
+        Materialize.toast("error occured: " + jqxhr.status + " " +
+            jqxhr.statusText);
+        clearProgressBar();
     }
 
     //
@@ -382,15 +430,6 @@ var ViewModel = function () {
           position: pos,
           icon: icon
         });
-    }
-
-    /**
-    * @description callback function invoked for ajax request errors
-    */
-    function errorCallback(jqxhr, settings, exception) {
-        Materialize.toast("error occured: " + jqxhr.status + " " +
-            jqxhr.statusText);
-        clearProgressBar();
     }
 
 };
