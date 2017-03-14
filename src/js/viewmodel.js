@@ -70,6 +70,8 @@ var ViewModel = function () {
     */
     this.viewLocation = function() {
 
+        startProgressBar();
+
         var wantedItem = this;
 
         goToLocation(wantedItem.latitude, wantedItem.longitude);
@@ -183,6 +185,7 @@ var ViewModel = function () {
     }
 
     function clickMarker(item) {
+        startProgressBar();
         animateMarker(item.marker);
         // delay the popup window to let animation occur
         setTimeout(function () {
@@ -199,15 +202,11 @@ var ViewModel = function () {
             rvprop: "content",
             callback: "jsonCallback"
         });
-        var wikiRequestTimeout = setTimeout(function () {
-            Materialize.toast("failed to get wikipedia resources");
-        }, 8000);
 
         $.ajax({
             url: url,
             dataType: "jsonp"
         }).done(function (data, textStatus, jqXHR) {
-            clearTimeout(wikiRequestTimeout);
             // If no wiki content found, exit
             if (data[1].length === 0) {
                 return ;
@@ -221,7 +220,7 @@ var ViewModel = function () {
                     data[1][i] + '</a></div>';
             }
             infoWindow.setContent(content);
-        });
+        }).fail(errorCallback);
     }
 
     function populateInfoWindow(item, infoWindow) {
@@ -237,6 +236,7 @@ var ViewModel = function () {
                 infoWindow.setMap(null);
             });
         }
+        clearProgressBar();
     }
 
     function clearClusters() {
@@ -382,6 +382,15 @@ var ViewModel = function () {
           position: pos,
           icon: icon
         });
+    }
+
+    /**
+    * @description callback function invoked for ajax request errors
+    */
+    function errorCallback(jqxhr, settings, exception) {
+        Materialize.toast("error occured: " + jqxhr.status + " " +
+            jqxhr.statusText);
+        clearProgressBar();
     }
 
 };
