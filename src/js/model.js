@@ -1,14 +1,14 @@
-'use strict';
+/*jslint sub:true*/
 
 /**
-* @constructor model data objects holding the map location
-* information
+* @constructor object holding the map location information
 * @param {object} data - json formatted raw data
 * @param {bool} visible - bound by ko to determine whether location is
+* @param {google.maps.Marker} marker - marker object. Optional at initialization
 * visible on list and map
 */
 
-var Item = function (data, visible) {
+var Item = function (data, visible, marker) {
     this.utilityName = data['Utility Name'];
     this.plantName = data['Plant Name'];
     this.streetAddress = data['Street Address'];
@@ -21,6 +21,7 @@ var Item = function (data, visible) {
     this.nercRegion = data['NERC Region'];
     this.balancingAuthorityName = data['Balancing Authority Name'];
     this.systemOwner = data['Transmission or Distribution System Owner'];
+    this.marker = marker;
     this.visible = ko.observable(visible); // true by default
     this.info = '<div class="tooltiptext">' +
                 '<b><div>' + this.plantName + '</div></b>' +

@@ -1,28 +1,20 @@
 /*jslint sub:true*/
 
-(function ($) {
+
+function init(data, textStatus, jqXHR) {
 
     'use strict';
 
-    /**
-     *
-     * Main app
-     *
-     */
+    // Init the actual map
 
-    $(function () {
+    var viewModel = new ViewModel();
 
-        /*
-         *
-         * Entrypoint
-         *
-         */
 
-        var viewModel = new ViewModel();
-        viewModel.init();
+    // Init the viewmodel
+    viewModel.init();
 
-        console.log("Ready!");
+    // Apply bindings
+    ko.applyBindings(viewModel);
 
-        ko.applyBindings(viewModel);
-    }); // end of document ready
-})(jQuery); // end of jQuery name space
+    console.log("Ready");
+}

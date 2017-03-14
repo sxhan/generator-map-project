@@ -1,5 +1,3 @@
-'use strict';
-
 /**
 *
 *
@@ -10,129 +8,39 @@
 
 var ViewModel = function () {
 
+    'use strict';
+
     var self = this;
-    this.markers = [];
-    this.markerClusterer = undefined;
-    this.map = undefined;
+
+    // UI elements
     this.koItemList = ko.observableArray([]);
     this.filterString = ko.observable();
-    this.userMarker = undefined;
+
+    // Map elements
+    this.map = undefined;
+    this.markerClusterer = undefined;
     this.infoWindowText = ko.observable();
     this.infoWindow = undefined;
+    self.userMarker = undefined;
 
+    // Aesthestic Elements
+    this.progress = ko.observable();
+
+
+    //
+    // Public methods
+    //
 
     /**
     * @description entrypoint for initializing all dynamically loaded
     * content
     */
+
     this.init = function () {
-        // Load google maps SDK. The callback function will create the
-        // map, and then load the data into map
-        $.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyB13Be18YOvyKwyDjXhJ9SKU5MdBzaKTj0",
-                    initMap).fail(self.errorCallback);
-    };
 
-    /**
-    * @description filters locations on map. Hides non matching
-    * locations on map and list
-    */
-    this.filter = function () {
-        var queryString = self.filterString();
-        self.koItemList().forEach(function (item, i) {
-            if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
-                item().visible(true);
-                self.markers[i].setMap(self.map);
-            } else {
-                item().visible(false);
-                self.markers[i].setMap(null);
-            }
-        });
-        redrawClusters();
-        // console.log("filter succeeded.")
-    };
+        initMap();
 
-    /**
-    * @description callback function invoked for ajax request errors
-    */
-    this.errorCallback = function (jqxhr, settings, exception) {
-        Materialize.toast("error occured: " + jqxhr.status + " " +
-            jqxhr.statusText);
-        clearProgressBar();
-    };
-
-    /**
-    * @description center map on location and animate marker
-    * @param {ko.observable} koIndex - ko observable of index of
-    * location
-    */
-    this.viewLocation = function(koIndex) {
-
-        var wantedItem = self.koItemList()[koIndex()];
-
-        goToLocation(wantedItem().latitude, wantedItem().longitude);
-        self.map.setZoom(14);
-
-        var marker = self.markers[koIndex()];
-
-        // Give map time to move before setting off animation
-        setTimeout(function () {
-            animateMarker(marker);
-        }, 1000);
-
-        setTimeout(function () {
-            populateInfoWindow(marker, self.infoWindow, koIndex());
-        }, 750);
-
-    };
-
-    /**
-    * @description Makes a marker bounce
-    * @param {google.maps.Marker} marker - marker to animate
-    */
-    function animateMarker(marker) {
-        if (marker.getAnimation() !== null) {
-            marker.setAnimation(null);
-        }
-        // } else {
-        //     marker.setAnimation(google.maps.Animation.BOUNCE);
-        //     setTimeout(function(){ marker.setAnimation(null); }, 750);
-        // }
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout(function () { marker.setAnimation(null); }, 750);
-
-    }
-
-    //
-    // Private methods
-    //
-
-    function initMap(data, textStatus, jqXHR) {
-        // Initialization code has to be structured this way due to the
-        // async loading of google maps SDK, which must preceed everything
-
-        // Init the actual map
-        self.map = new google.maps.Map($('#map')[0], {
-            zoom: 12,
-            center: {
-                lat: 37.7749,
-                lng: -122.4194
-            },
-            zoomControl: true,
-            streetViewControl: true,
-            // mapTypeId: google.maps.MapTypeId.ROADMAP,
-            styles: mapStyle,
-            mapTypeControlOptions: {
-                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
-            },
-            disableDefaultUI: true
-        });
-        createFilterButton();
-        createGeolocationButton();
-        // Load generator data
-        loadData();
-    }
-
-    function loadData() {
+        // Load json data
         $.getJSON("src/data/data.json", function (data) {
             // Create a temp array to hold our items for initial
             // loading and sorting
@@ -159,12 +67,106 @@ var ViewModel = function () {
 
             // stop progress bar
             clearProgressBar();
-        }).fail(self.errorCallback);
+        }).fail(errorCallback);
+    };
+
+    /**
+    * @description filters locations on map. Hides non matching
+    * locations on map and list
+    */
+    this.filter = function () {
+        var queryString = self.filterString();
+        self.koItemList().forEach(function (item, i) {
+            if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
+                item().visible(true);
+                self.markers[i].setMap(self.map);
+            } else {
+                item().visible(false);
+                self.markers[i].setMap(null);
+            }
+        });
+        redrawClusters();
+        // console.log("filter succeeded.")
+    };
+
+
+    /**
+    * @description center map on location and animate marker
+    * @param {ko.observable} koIndex - ko observable of index of
+    * location
+    */
+    this.viewLocation = function() {
+
+        var wantedItem = this;
+
+        goToLocation(wantedItem.latitude, wantedItem.longitude);
+        self.map.setZoom(14);
+
+        var marker = wantedItem.marker;
+
+        // Give map time to move before setting off animation
+        setTimeout(function () {
+            animateMarker(marker);
+        }, 1000);
+
+        setTimeout(function () {
+            populateInfoWindow(wantedItem, self.infoWindow);
+        }, 750);
+
+    };
+
+    //
+    // Private methods
+    //
+
+    function initMap() {
+        self.map = new google.maps.Map($('#map')[0], {
+            zoom: 12,
+            center: {
+                lat: 37.7749,
+                lng: -122.4194
+            },
+            zoomControl: true,
+            streetViewControl: true,
+            // mapTypeId: google.maps.MapTypeId.ROADMAP,
+            styles: mapStyle,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
+            },
+            disableDefaultUI: true
+        });
+        self.infoWindow = new google.maps.InfoWindow();
+
+        createFilterButton(self.map);
+        createGeolocationButton(self.map);
+    }
+
+
+    /**
+    * @description Makes a marker bounce
+    * @param {google.maps.Marker} marker - marker to animate
+    */
+    function animateMarker(marker) {
+        if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+        }
+        // } else {
+        //     marker.setAnimation(google.maps.Animation.BOUNCE);
+        //     setTimeout(function(){ marker.setAnimation(null); }, 750);
+        // }
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function () { marker.setAnimation(null); }, 750);
+    }
+
+    function startProgressBar () {
+        self.progress(true);
+    }
+
+    function clearProgressBar () {
+        self.progress(false);
     }
 
     function createMarkers() {
-
-        self.infoWindow = new google.maps.InfoWindow();
 
         self.koItemList().forEach(function (item, i) {
             var marker = new google.maps.Marker({
@@ -176,18 +178,24 @@ var ViewModel = function () {
                 map: self.map,
                 title: item().plantName
             });
-            // self.markers will be pushed in the same order as they are
-            // found on in the observable array
-            self.markers.push(marker);
+            // add marker to the item object in observable array
+            item().marker = marker;
+            // Add marker callback
             marker.addListener('click', function () {
                 animateMarker(marker);
                 // delay the popup window to let animation occur
                 setTimeout(function () {
-                    populateInfoWindow(marker, self.infoWindow, i);
+                    populateInfoWindow(item(), self.infoWindow);
                 }, 750);
             });
         });
     }
+
+    // function clickMarker(item) {
+    //     if ((!item) | (!item.marker)) {
+    //
+    //     }
+    // }
 
     function searchWikipedia(query, infoWindow) {
         var url = "https://en.wikipedia.org/w/api.php";
@@ -223,16 +231,15 @@ var ViewModel = function () {
         });
     }
 
-    function populateInfoWindow(marker, infoWindow, idx) {
+    function populateInfoWindow(item, infoWindow) {
         // only open if its not currently open
-        if (infoWindow.marker !== marker) {
-            infoWindow.marker = marker;
-            self.infoWindowText(self.koItemList()[idx]().info);
+        if (infoWindow.marker !== item.marker) {
+            infoWindow.marker = item.marker;
+            self.infoWindowText(item.info);
             infoWindow.setContent(self.infoWindowText());
             // Async function to get wikipedia results
-            searchWikipedia(self.koItemList()[idx]().systemOwner,
-                            infoWindow);
-            infoWindow.open(self.map, marker);
+            searchWikipedia(item.systemOwner, infoWindow);
+            infoWindow.open(self.map, item.marker);
             infoWindow.addListener('closeclick', function () {
                 infoWindow.setMap(null);
             });
@@ -257,7 +264,7 @@ var ViewModel = function () {
         var visibleMarkers = [];
         self.koItemList().forEach(function (site, i) {
             if (site().visible()) {
-                visibleMarkers.push(self.markers[i]);
+                visibleMarkers.push(site().marker);
             }
         });
         self.markerClusterer = new MarkerClusterer(self.map, visibleMarkers, {
@@ -266,80 +273,9 @@ var ViewModel = function () {
         });
     }
 
-    function createGeolocationButton() {
+    // Control functions for the map
 
-        // Dynamically generate the Filter button onto the map
-        var locationControlDiv = $('<div>', {
-            'class': 'waves-effect waves-light map-control-icon blue-text text-accent-1 white z-depth-1'
-        });
-
-        var locationControl = new LocationControl(locationControlDiv[0], self.map);
-
-        locationControl.index = 1;
-        self.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationControlDiv[0]);
-
-    }
-
-    function LocationControl(controlDiv, map) {
-        // Set CSS for the control border.
-        // var controlUI = $('<i class="small material-icons rotate">my_location</i>');
-        var controlUI = $('<i class="fa fa-location-arrow fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>');
-        controlDiv.appendChild(controlUI[0]);
-
-        // Setup the click event listeners: simply set the map to Chicago.
-        controlUI[0].addEventListener('click', geoLocate);
-    }
-
-    function geoLocate() {
-        var map = self.map;
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-
-            startProgressBar();
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                map.setCenter(pos);
-                // delay marker drop to let map movement occur
-                setTimeout(function() {
-                    dropUserMarker(pos);
-                }, 750);
-
-                clearProgressBar();
-
-            }, function(err) {
-                handleLocationError(true, err);
-            }, {timeout: 4000});
-        } else {
-          // Browser doesn't support Geolocation
-          handleLocationError(false);
-        }
-    }
-
-    function dropUserMarker(pos) {
-        var marker = self.userMarker;
-        // Move user marker if exists. Create new if not
-        if (marker) { marker.setMap(null); }
-
-        var icon = {
-            url: 'img/my-location.png', // url
-            scaledSize: new google.maps.Size(25, 25), // scaled size
-            origin: new google.maps.Point(0,0), // origin
-            anchor: new google.maps.Point(0, 0) // ancho
-        };
-
-        self.userMarker = new google.maps.Marker({
-          map: self.map,
-          draggable: false,
-          animation: google.maps.Animation.DROP,
-          position: pos,
-          icon: icon
-        });
-    }
-
-    function createFilterButton() {
+    function createFilterButton(map) {
         /**
          * The CenterControl adds a control to the map that recenters the map on
          * Chicago.
@@ -367,28 +303,90 @@ var ViewModel = function () {
         // jQuery sidenav initialization
         centerControlDiv.sideNav();
 
-        var centerControl = new CenterControl(centerControlDiv[0], self.map);
+        var centerControl = new CenterControl(centerControlDiv[0], map);
 
         centerControlDiv.index = 1;
-        self.map.controls[google.maps.ControlPosition.RIGHT_TOP].push(centerControlDiv[0]);
+        map.controls[google.maps.ControlPosition.RIGHT_TOP].push(centerControlDiv[0]);
     }
 
-    function startProgressBar() {
-        if (! $('#progress').children().first().hasClass('indeterminate')){
-            $('#progress').children().first().addClass('indeterminate');
+    function createGeolocationButton(map) {
+
+        // Dynamically generate the Filter button onto the map
+        var locationControlDiv = $('<div>', {
+            'class': 'waves-effect waves-light map-control-icon blue-text text-accent-1 white z-depth-1'
+        });
+
+        var locationControl = new LocationControl(locationControlDiv[0], map);
+
+        locationControl.index = 1;
+        map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(locationControlDiv[0]);
+
+    }
+
+    function LocationControl(controlDiv, map) {
+        // Set CSS for the control border.
+        // var controlUI = $('<i class="small material-icons rotate">my_location</i>');
+        var controlUI = $('<i class="fa fa-location-arrow fa-fw fa-2x map-control-glyph" aria-hidden="true"></i>');
+        controlDiv.appendChild(controlUI[0]);
+
+        // Setup the click event listeners.
+        controlUI.click(geoLocate);
+
+        function geoLocate() {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                startProgressBar();
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map.setCenter(pos);
+                    // delay marker drop to let map movement occur
+                    setTimeout(function() {
+                        dropUserMarker(map, pos);
+                    }, 750);
+
+                    clearProgressBar();
+
+                }, function(err) {
+                    handleLocationError(true, err);
+                }, {timeout: 4000});
+            } else {
+              // Browser doesn't support Geolocation
+              handleLocationError(false);
+            }
         }
-    }
-
-    function clearProgressBar() {
-        $('#progress').children().first().removeClass('indeterminate');
     }
 
     function handleLocationError(browserHasGeolocation, err) {
         var msg = browserHasGeolocation ?
             'Error: The Geolocation service failed. ' + err.message:
             'Error: Your browser doesn\'t support geolocation.';
-
-        Materialize.toast(msg, 2000); // 4000 is the duration of the toast
+        Materialize.toast(msg, 4000);
         clearProgressBar();
     }
+
+    function dropUserMarker(map, pos) {
+        var marker = self.userMarker;
+        // Move user marker if exists. Create new if not
+        if (marker) { marker.setMap(null); }
+
+        var icon = {
+            url: 'src/img/my-location.png', // url
+            scaledSize: new google.maps.Size(25, 25), // scaled size
+            origin: new google.maps.Point(0,0), // origin
+            anchor: new google.maps.Point(0, 0) // ancho
+        };
+
+        self.userMarker = new google.maps.Marker({
+          map: map,
+          draggable: false,
+          animation: google.maps.Animation.DROP,
+          position: pos,
+          icon: icon
+        });
+    }
+
 };
