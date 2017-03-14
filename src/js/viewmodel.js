@@ -49,13 +49,13 @@ var ViewModel = function () {
     */
     this.filter = function () {
         var queryString = self.filterString();
-        self.koItemList().forEach(function (item, i) {
+        self.koItemList().forEach(function (item) {
             if (JSON.stringify(item().toJSON()).toLowerCase().includes(queryString.toLowerCase())) {
                 item().visible(true);
-                self.markers[i].setMap(self.map);
+                item().marker.setVisible(true);
             } else {
                 item().visible(false);
-                self.markers[i].setMap(null);
+                item().marker.setVisible(false);
             }
         });
         redrawClusters();
@@ -234,6 +234,7 @@ var ViewModel = function () {
             infoWindow.open(self.map, item.marker);
             infoWindow.addListener('closeclick', function () {
                 infoWindow.setMap(null);
+                console.log(infoWindow);
             });
         }
         clearProgressBar();
