@@ -37,38 +37,10 @@ var ViewModel = function () {
     */
 
     this.init = function () {
-
         // Init map
         initMap();
-
         // Load json data asynchronously, and create markers
-        $.getJSON("src/data/data.json", function (data) {
-            // Create a temp array to hold our items for initial
-            // loading and sorting
-            var tempList = [];
-            data.forEach(function (item) {
-                tempList.push(ko.observable(new Item(item, true)));
-            });
-
-            // sort the list by plant name
-            tempList.sort(function (a, b) {
-                if (a().plantName < b().plantName) { return -1; }
-                if (a().plantName > b().plantName) { return 1; }
-                return 0;
-            });
-
-            // Create the observableArray which then populates the DOM
-            self.koItemList(tempList);
-            // Now that the DOM is populated, initialize tooltips
-            $('.tooltipped').tooltip({delay: 50,
-                                      html: true});
-
-            createMarkers();
-            redrawClusters();
-
-            // stop progress bar
-            clearProgressBar();
-        }).fail(errorCallback);
+        loadData();
     };
 
     /**
@@ -135,6 +107,36 @@ var ViewModel = function () {
 
         createFilterButton(self.map);
         createGeolocationButton(self.map);
+    }
+
+    function loadData() {
+        $.getJSON("src/data/data.json", function (data) {
+            // Create a temp array to hold our items for initial
+            // loading and sorting
+            var tempList = [];
+            data.forEach(function (item) {
+                tempList.push(ko.observable(new Item(item, true)));
+            });
+
+            // sort the list by plant name
+            tempList.sort(function (a, b) {
+                if (a().plantName < b().plantName) { return -1; }
+                if (a().plantName > b().plantName) { return 1; }
+                return 0;
+            });
+
+            // Create the observableArray which then populates the DOM
+            self.koItemList(tempList);
+            // Now that the DOM is populated, initialize tooltips
+            $('.tooltipped').tooltip({delay: 50,
+                                      html: true});
+
+            createMarkers();
+            redrawClusters();
+
+            // stop progress bar
+            clearProgressBar();
+        }).fail(errorCallback);
     }
 
 
@@ -267,7 +269,9 @@ var ViewModel = function () {
         });
     }
 
+    //
     // Control functions for the map
+    //
 
     function createFilterButton(map) {
         /**
