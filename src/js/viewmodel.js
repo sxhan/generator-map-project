@@ -127,9 +127,6 @@ var ViewModel = function () {
 
             // Create the observableArray which then populates the DOM
             self.koItemList(tempList);
-            // Now that the DOM is populated, initialize tooltips
-            $('.tooltipped').tooltip({delay: 50,
-                                      html: true});
 
             createMarkers();
             redrawClusters();

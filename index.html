@@ -59,8 +59,8 @@
                       data-position="right"
                       data-delay="50"
                       data-bind="text: plantName, visible: visible,
-                                 event: {click: $parent.viewLocation},
-                                 dataTooltip: info">
+                                 event: { click: $parent.viewLocation },
+                                 tooltip: { delay: 50, html: true , tooltip: info }">
                   </a>
                 </li>
             </ul>
