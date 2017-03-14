@@ -233,8 +233,7 @@ var ViewModel = function () {
             searchWikipedia(item.systemOwner, infoWindow);
             infoWindow.open(self.map, item.marker);
             infoWindow.addListener('closeclick', function () {
-                infoWindow.setMap(null);
-                console.log(infoWindow);
+                infoWindow.close();
             });
         }
         clearProgressBar();
