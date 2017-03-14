@@ -1,5 +1,8 @@
 /*jslint sub:true*/
 
+function mapErrorCallback() {
+    Materialize.toast('Google maps failed to load!');
+}
 
 function init(data, textStatus, jqXHR) {
 
