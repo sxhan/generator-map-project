@@ -208,7 +208,7 @@ var ViewModel = function () {
             dataType: "jsonp"
         }).done(function (data, textStatus, jqXHR) {
             // If no wiki content found, exit
-            if (data[1].length === 0) {
+            if (data.error || data[1].length === 0) {
                 return ;
             }
             // Update page with wiki links
