@@ -38,9 +38,10 @@ var ViewModel = function () {
 
     this.init = function () {
 
+        // Init map
         initMap();
 
-        // Load json data
+        // Load json data asynchronously, and create markers
         $.getJSON("src/data/data.json", function (data) {
             // Create a temp array to hold our items for initial
             // loading and sorting
@@ -106,13 +107,8 @@ var ViewModel = function () {
 
         // Give map time to move before setting off animation
         setTimeout(function () {
-            animateMarker(marker);
+            clickMarker(wantedItem);
         }, 1000);
-
-        setTimeout(function () {
-            populateInfoWindow(wantedItem, self.infoWindow);
-        }, 750);
-
     };
 
     //
@@ -181,21 +177,19 @@ var ViewModel = function () {
             // add marker to the item object in observable array
             item().marker = marker;
             // Add marker callback
-            marker.addListener('click', function () {
-                animateMarker(marker);
-                // delay the popup window to let animation occur
-                setTimeout(function () {
-                    populateInfoWindow(item(), self.infoWindow);
-                }, 750);
+            marker.addListener('click', function() {
+                clickMarker(item());
             });
         });
     }
 
-    // function clickMarker(item) {
-    //     if ((!item) | (!item.marker)) {
-    //
-    //     }
-    // }
+    function clickMarker(item) {
+        animateMarker(item.marker);
+        // delay the popup window to let animation occur
+        setTimeout(function () {
+            populateInfoWindow(item, self.infoWindow);
+        }, 750);
+    }
 
     function searchWikipedia(query, infoWindow) {
         var url = "https://en.wikipedia.org/w/api.php";
